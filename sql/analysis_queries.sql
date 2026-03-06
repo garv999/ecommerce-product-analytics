@@ -119,3 +119,24 @@ WHERE Quantity > 0
 AND CustomerID IS NOT NULL
 GROUP BY CustomerID
 ORDER BY lifetime_revenue DESC;
+
+
+/* -----------------------------------------------------
+   9. PRODUCT REVENUE CONTRIBUTION
+   Purpose: Shows percentage contribution of products
+----------------------------------------------------- */
+
+SELECT
+    Description,
+    SUM(Quantity * UnitPrice) AS revenue,
+    ROUND(
+        SUM(Quantity * UnitPrice) /
+        (SELECT SUM(Quantity * UnitPrice)
+         FROM online_retail
+         WHERE Quantity > 0) * 100, 2
+    ) AS revenue_percentage
+FROM online_retail
+WHERE Quantity > 0
+GROUP BY Description
+ORDER BY revenue DESC
+LIMIT 10;
