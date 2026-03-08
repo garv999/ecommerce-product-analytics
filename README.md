@@ -47,15 +47,35 @@ The project is organized around five analysis tracks:
 ecommerce-product-analytics/
 ├── README.md
 ├── requirements.txt
+├── .gitignore
+
 ├── data/
 │   ├── raw/
+│   │   └── online_retail.csv
 │   └── processed/
+│       └── cleaned_online_retail.csv
+
 ├── notebooks/
+│   ├── 01_data_inspection.ipynb
+│   ├── 02_rfm_segmentation.ipynb
+│   ├── 03_cohort_analysis.ipynb
+│   └── 04_CLV.ipynb
+
 ├── outputs/
 │   ├── figures/
+│   │   ├── cohort_retention_heatmap.png
+│   │   ├── monthly_revenue_trend.png
+│   │   ├── rfm_customer_segments.png
+│   │   └── top_countries_revenue.png
+│   │
 │   └── reports/
+│       └── insights.md
+
 ├── sql/
-└── src/
+│   └── analysis_queries.sql
+
+├── src/
+│   └── (empty for now / future python scripts)
 ```
 
 ## ✅ Expected Outcomes
