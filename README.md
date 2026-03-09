@@ -85,3 +85,17 @@ ecommerce-product-analytics/
 - Retention trends by customer cohort
 - Practical CLV framework for prioritization
 - Actionable recommendations to improve retention and growth
+
+## 📊 Sample Visualizations
+
+### Monthly Revenue Trend
+![Monthly Revenue](outputs/figures/monthly_revenue_trend.png)
+
+### Top Countries by Revenue
+![Country Revenue](outputs/figures/top_countries_revenue.png)
+
+### Customer Segmentation (RFM)
+![RFM Segments](outputs/figures/rfm_customer_segments.png)
+
+### Cohort Retention Heatmap
+![Cohort Retention](outputs/figures/cohort_retention_heatmap.png)
