@@ -15,3 +15,11 @@ This project analyzed customer behavior and revenue patterns for an e-commerce d
 2. Improve early retention through targeted promotions after the first purchase.
 3. Implement loyalty programs for frequent buyers.
 4. Use customer segmentation to personalize marketing campaigns.
+
+### Additional Notes
+
+Further analysis can include:
+
+- Product-level retention
+- Category-wise revenue
+- Customer churn prediction
