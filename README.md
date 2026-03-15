@@ -59,7 +59,8 @@ ecommerce-product-analytics/
 │   ├── 01_data_inspection.ipynb
 │   ├── 02_rfm_segmentation.ipynb
 │   ├── 03_cohort_analysis.ipynb
-│   └── 04_CLV.ipynb
+│   ├── 04_CLV.ipynb
+│   └── 05_product_analysis.ipynb
 
 ├── outputs/
 │   ├── figures/
