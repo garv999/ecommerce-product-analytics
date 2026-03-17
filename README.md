@@ -90,7 +90,7 @@ ecommerce-product-analytics/
 - Practical CLV framework for prioritization
 - Actionable recommendations to improve retention and growth
 
-## ✅ Expected Outcomes
+## Expected Outcomes
 
 - Clear view of sales and revenue patterns
 - Customer segments based on purchase behavior
