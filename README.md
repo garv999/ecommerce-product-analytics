@@ -90,6 +90,15 @@ ecommerce-product-analytics/
 - Practical CLV framework for prioritization
 - Actionable recommendations to improve retention and growth
 
+## ✅ Expected Outcomes
+
+- Clear view of sales and revenue patterns
+- Customer segments based on purchase behavior
+- Retention trends by customer cohort
+- Practical CLV framework for prioritization
+- Actionable recommendations to improve retention and growth
+- Identification of top-performing products and repeat purchase drivers
+
 ## 📊 Sample Visualizations
 
 ### Monthly Revenue Trend
@@ -107,3 +116,15 @@ ecommerce-product-analytics/
 ### Cohort Retention Heatmap
 
 ![Cohort Retention](outputs/figures/cohort_retention_heatmap.png)
+
+### Top Products by Revenue
+
+![Top Products Revenue](outputs/figures/top_products_revenue.png)
+
+### Most Purchased Products
+
+![Top Products Quantity](outputs/figures/top_products_quantity.png)
+
+### Repeat Purchase Products
+
+![Repeat Products](outputs/figures/repeat_products.png)
