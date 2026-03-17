@@ -64,11 +64,14 @@ ecommerce-product-analytics/
 
 ├── outputs/
 │   ├── figures/
-│   │   ├── cohort_retention_heatmap.png
 │   │   ├── monthly_revenue_trend.png
+│   │   ├── top_countries_revenue.png
 │   │   ├── rfm_customer_segments.png
-│   │   └── top_countries_revenue.png
-│   │
+│   │   ├── cohort_retention_heatmap.png
+│   │   ├── top_products_revenue.png
+│   │   ├── top_products_quantity.png
+│   │   └── repeat_products.png
+│
 │   └── reports/
 │       └── insights.md
 
@@ -76,7 +79,7 @@ ecommerce-product-analytics/
 │   └── analysis_queries.sql
 
 ├── src/
-│   └── (empty for now / future python scripts)
+│   └── utils.py
 ```
 
 ## ✅ Expected Outcomes
