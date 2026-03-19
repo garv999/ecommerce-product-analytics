@@ -60,7 +60,8 @@ ecommerce-product-analytics/
 │   ├── 02_rfm_segmentation.ipynb
 │   ├── 03_cohort_analysis.ipynb
 │   ├── 04_CLV.ipynb
-│   └── 05_product_analysis.ipynb
+│   ├── 05_product_analysis.ipynb
+│   └── 06_churn_analysis.ipynb
 
 ├── outputs/
 │   ├── figures/
@@ -128,3 +129,7 @@ ecommerce-product-analytics/
 ### Repeat Purchase Products
 
 ![Repeat Products](outputs/figures/repeat_products.png)
+
+### Customer Churn Status
+
+![Churn Status](outputs/figures/churn_status.png)
