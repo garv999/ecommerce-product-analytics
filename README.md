@@ -48,7 +48,8 @@ ecommerce-product-analytics/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
-
+├── dashboard/
+│   └── app.py
 ├── data/
 │   ├── raw/
 │   │   └── online_retail.csv
