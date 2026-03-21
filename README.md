@@ -134,3 +134,7 @@ ecommerce-product-analytics/
 ### Customer Churn Status
 
 ![Churn Status](outputs/figures/churn_status.png)
+
+## 📊 Streamlit Dashboard
+
+![Dashboard](outputs/figures/dashboard.png)
