@@ -30,7 +30,8 @@ df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 # Sidebar Filters
 # --------------------
 
-st.sidebar.header("Filters")
+st.sidebar.title("Dashboard Filters")
+st.sidebar.markdown("---")
 
 df_filtered = df.copy()
 
@@ -60,8 +61,13 @@ df_filtered = df_filtered[
     (df_filtered["InvoiceDate"] >= pd.to_datetime(start_date)) &
     (df_filtered["InvoiceDate"] <= pd.to_datetime(end_date))
 ]
-st.markdown("# 📊 Ecommerce Product Analytics Dashboard")
-st.caption("Revenue • Customers • Products • Trends")
+st.markdown(
+    """
+    # 📊 Ecommerce Product Analytics Dashboard
+    ### Customer Behavior • Revenue Trends • Product Performance
+    """
+)
+st.divider()
 
 # --------------------
 # Dataset Overview
@@ -87,6 +93,7 @@ df_filtered["Revenue"] = (
 # --------------------
 # KPIs
 # --------------------
+df_filtered["Revenue"] = df_filtered["Quantity"] * df_filtered["Price"]
 
 total_revenue = df_filtered["Revenue"].sum()
 total_orders = df_filtered["Invoice"].nunique()
@@ -96,12 +103,22 @@ st.markdown("## Key Metrics")
 
 k1, k2, k3 = st.columns(3)
 
-k1.metric("Total Revenue", f"{total_revenue:,.0f}")
-k2.metric("Total Orders", total_orders)
-k3.metric("Total Customers", total_customers)
+k1.metric(
+    label="Total Revenue",
+    value=f"{total_revenue:,.0f}"
+)
+
+k2.metric(
+    label="Total Orders",
+    value=total_orders
+)
+
+k3.metric(
+    label="Total Customers",
+    value=total_customers
+)
 
 st.divider()
-
 # --------------------
 # Monthly + Country side by side
 # --------------------
@@ -125,7 +142,9 @@ country_revenue = (
 
 import matplotlib.pyplot as plt
 
-st.markdown("## Revenue Analysis")
+with st.container():
+
+    st.markdown("## Revenue Analysis")
 
 c1, c2 = st.columns(2)
 
