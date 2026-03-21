@@ -26,7 +26,13 @@ df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 # Sidebar Filters
 # --------------------
 
+# --------------------
+# Sidebar Filters
+# --------------------
+
 st.sidebar.header("Filters")
+
+df_filtered = df.copy()
 
 countries = df["Country"].unique()
 
@@ -35,13 +41,25 @@ selected_country = st.sidebar.selectbox(
     ["All"] + list(countries)
 )
 
-df_filtered = df.copy()
+min_date = df["InvoiceDate"].min()
+max_date = df["InvoiceDate"].max()
 
+start_date, end_date = st.sidebar.date_input(
+    "Select Date Range",
+    [min_date, max_date]
+)
+
+# Apply country filter
 if selected_country != "All":
     df_filtered = df_filtered[
         df_filtered["Country"] == selected_country
     ]
 
+# Apply date filter
+df_filtered = df_filtered[
+    (df_filtered["InvoiceDate"] >= pd.to_datetime(start_date)) &
+    (df_filtered["InvoiceDate"] <= pd.to_datetime(end_date))
+]
 st.markdown("# 📊 Ecommerce Product Analytics Dashboard")
 st.caption("Revenue • Customers • Products • Trends")
 
