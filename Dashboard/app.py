@@ -80,3 +80,55 @@ ax.plot(
 plt.xticks(rotation=90)
 
 st.pyplot(fig, use_container_width=False)
+
+# --------------------
+# Top Countries by Revenue
+# --------------------
+
+st.subheader("Top Countries by Revenue")
+
+country_revenue = (
+    df.groupby("Country")["Revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+fig2, ax2 = plt.subplots(figsize=(6, 3))
+
+ax2.bar(
+    country_revenue.index,
+    country_revenue.values
+)
+
+ax2.set_title("Top 10 Countries by Revenue")
+
+plt.xticks(rotation=45)
+
+st.pyplot(fig2, use_container_width=False)
+
+# --------------------
+# Top Products by Revenue
+# --------------------
+
+st.subheader("Top Products by Revenue")
+
+top_products = (
+    df.groupby("Description")["Revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+fig3, ax3 = plt.subplots(figsize=(6, 3))
+
+ax3.bar(
+    top_products.index,
+    top_products.values
+)
+
+ax3.set_title("Top 10 Products by Revenue")
+
+plt.xticks(rotation=75)
+
+st.pyplot(fig3, use_container_width=False)
