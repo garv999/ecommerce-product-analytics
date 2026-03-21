@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
+import streamlit as st
+import pandas as pd
+import os
 
 st.set_page_config(
     page_title="Ecommerce Analytics Dashboard",
     layout="wide"
 )
-
-st.title("📊 Ecommerce Product Analytics Dashboard")
-
-import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -23,10 +22,38 @@ df = pd.read_csv(data_path)
 
 df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 
-st.subheader("Dataset Overview")
+# --------------------
+# Sidebar Filters
+# --------------------
 
-st.write("Rows:", df.shape[0])
-st.write("Columns:", df.shape[1])
+st.sidebar.header("Filters")
+
+countries = df["Country"].unique()
+
+selected_country = st.sidebar.selectbox(
+    "Select Country",
+    ["All"] + list(countries)
+)
+
+df_filtered = df.copy()
+
+if selected_country != "All":
+    df_filtered = df_filtered[
+        df_filtered["Country"] == selected_country
+    ]
+
+st.markdown("# 📊 Ecommerce Product Analytics Dashboard")
+st.caption("Revenue • Customers • Products • Trends")
+
+# --------------------
+# Dataset Overview
+# --------------------
+
+st.markdown("## Dataset Overview")
+
+colA, colB = st.columns(2)
+colA.metric("Rows", df.shape[0])
+colB.metric("Columns", df.shape[1])
 
 st.dataframe(df.head())
 
@@ -34,87 +61,96 @@ st.dataframe(df.head())
 # Revenue column
 # --------------------
 
-df["Revenue"] = df["Quantity"] * df["Price"]
+df_filtered["Revenue"] = (
+    df_filtered["Quantity"] *
+    df_filtered["Price"]
+)
 
 # --------------------
 # KPIs
 # --------------------
 
-total_revenue = df["Revenue"].sum()
-total_orders = df["Invoice"].nunique()
-total_customers = df["Customer ID"].nunique()
+total_revenue = df_filtered["Revenue"].sum()
+total_orders = df_filtered["Invoice"].nunique()
+total_customers = df_filtered["Customer ID"].nunique()
 
-st.subheader("Key Metrics")
+st.markdown("## Key Metrics")
 
-col1, col2, col3 = st.columns(3)
+k1, k2, k3 = st.columns(3)
 
-col1.metric("Total Revenue", f"{total_revenue:,.0f}")
-col2.metric("Total Orders", total_orders)
-col3.metric("Total Customers", total_customers)
+k1.metric("Total Revenue", f"{total_revenue:,.0f}")
+k2.metric("Total Orders", total_orders)
+k3.metric("Total Customers", total_customers)
+
+st.divider()
 
 # --------------------
-# Monthly Revenue Trend
+# Monthly + Country side by side
 # --------------------
 
-st.subheader("Monthly Revenue Trend")
-
-df["YearMonth"] = df["InvoiceDate"].dt.to_period("M")
+df_filtered["YearMonth"] = df_filtered["InvoiceDate"].dt.to_period("M")
 
 monthly_revenue = (
-    df.groupby("YearMonth")["Revenue"]
+    df_filtered.groupby("YearMonth")["Revenue"]
     .sum()
     .reset_index()
 )
 
 monthly_revenue["YearMonth"] = monthly_revenue["YearMonth"].astype(str)
 
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots(figsize=(6, 3))
-
-ax.plot(
-    monthly_revenue["YearMonth"],
-    monthly_revenue["Revenue"]
-)
-
-plt.xticks(rotation=90)
-
-st.pyplot(fig, use_container_width=False)
-
-# --------------------
-# Top Countries by Revenue
-# --------------------
-
-st.subheader("Top Countries by Revenue")
-
 country_revenue = (
-    df.groupby("Country")["Revenue"]
+    df_filtered.groupby("Country")["Revenue"]
     .sum()
     .sort_values(ascending=False)
     .head(10)
 )
 
-fig2, ax2 = plt.subplots(figsize=(6, 3))
+import matplotlib.pyplot as plt
 
-ax2.bar(
-    country_revenue.index,
-    country_revenue.values
-)
+st.markdown("## Revenue Analysis")
 
-ax2.set_title("Top 10 Countries by Revenue")
+c1, c2 = st.columns(2)
 
-plt.xticks(rotation=45)
+with c1:
 
-st.pyplot(fig2, use_container_width=False)
+    st.subheader("Monthly Revenue")
+
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    ax.plot(
+        monthly_revenue["YearMonth"],
+        monthly_revenue["Revenue"]
+    )
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+
+with c2:
+
+    st.subheader("Top Countries")
+
+    fig2, ax2 = plt.subplots(figsize=(6, 3))
+
+    ax2.bar(
+        country_revenue.index,
+        country_revenue.values
+    )
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig2)
+
 
 # --------------------
-# Top Products by Revenue
+# Product chart
 # --------------------
 
-st.subheader("Top Products by Revenue")
+st.markdown("## Product Analysis")
 
 top_products = (
-    df.groupby("Description")["Revenue"]
+    df_filtered.groupby("Description")["Revenue"]
     .sum()
     .sort_values(ascending=False)
     .head(10)
@@ -127,8 +163,6 @@ ax3.bar(
     top_products.values
 )
 
-ax3.set_title("Top 10 Products by Revenue")
-
 plt.xticks(rotation=75)
 
-st.pyplot(fig3, use_container_width=False)
+st.pyplot(fig3)
