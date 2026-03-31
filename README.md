@@ -47,6 +47,8 @@ The project is organized around five analysis tracks:
 ecommerce-product-analytics/
 ├── README.md
 ├── requirements.txt
+├── .streamlit/
+│   └── config.toml
 ├── .gitignore
 ├── dashboard/
 │   └── app.py
