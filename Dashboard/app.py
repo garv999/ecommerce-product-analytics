@@ -17,7 +17,28 @@ data_path = os.path.join(
     "processed",
     "cleaned_online_retail.csv"
 )
+st.markdown(
+    """
+    <style>
 
+    .stApp {
+        background-color: #0E1117;
+    }
+
+    section[data-testid="stSidebar"] {
+        background-color: #111827;
+    }
+
+    div[data-testid="stMetric"] {
+        background-color: #1F2937;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 df = pd.read_csv(data_path)
 
 df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
