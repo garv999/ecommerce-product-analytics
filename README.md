@@ -3,6 +3,7 @@
 ## 🌐 Live Dashboard
 
 👉 **[Click here to explore the interactive dashboard](https://ecommerce-analytics-garv999.streamlit.app/)**  
+
 ![Dashboard Preview](outputs/figures/dashboard.png)
 ## 🎯 Business Context
 
