@@ -140,6 +140,12 @@ k3.metric(
 )
 
 st.divider()
+
+tab1, tab2, tab3 = st.tabs([
+    "📈 Revenue Analysis",
+    "🌍 Geography",
+    "📦 Product Insights"
+])
 # --------------------
 # Monthly + Country side by side
 # --------------------
@@ -162,18 +168,15 @@ country_revenue = (
 )
 
 import matplotlib.pyplot as plt
+# --------------------
+# Tabs Layout
+# --------------------
 
-with st.container():
+with tab1:
 
-    st.markdown("## Revenue Analysis")
+    st.subheader("Monthly Revenue Trend")
 
-c1, c2 = st.columns(2)
-
-with c1:
-
-    st.subheader("Monthly Revenue")
-
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     ax.plot(
         monthly_revenue["YearMonth"],
@@ -185,11 +188,11 @@ with c1:
     st.pyplot(fig)
 
 
-with c2:
+with tab2:
 
-    st.subheader("Top Countries")
+    st.subheader("Top Countries by Revenue")
 
-    fig2, ax2 = plt.subplots(figsize=(6, 3))
+    fig2, ax2 = plt.subplots(figsize=(8, 4))
 
     ax2.bar(
         country_revenue.index,
@@ -201,26 +204,24 @@ with c2:
     st.pyplot(fig2)
 
 
-# --------------------
-# Product chart
-# --------------------
+with tab3:
 
-st.markdown("## Product Analysis")
+    st.subheader("Top Products by Revenue")
 
-top_products = (
-    df_filtered.groupby("Description")["Revenue"]
-    .sum()
-    .sort_values(ascending=False)
-    .head(10)
-)
+    top_products = (
+        df_filtered.groupby("Description")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(10)
+    )
 
-fig3, ax3 = plt.subplots(figsize=(6, 3))
+    fig3, ax3 = plt.subplots(figsize=(8, 4))
 
-ax3.bar(
-    top_products.index,
-    top_products.values
-)
+    ax3.bar(
+        top_products.index,
+        top_products.values
+    )
 
-plt.xticks(rotation=75)
+    plt.xticks(rotation=75)
 
-st.pyplot(fig3)
+    st.pyplot(fig3)
