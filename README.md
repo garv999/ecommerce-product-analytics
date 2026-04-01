@@ -3,7 +3,7 @@
 ## 🌐 Live Dashboard
 
 👉 **[Click here to explore the interactive dashboard](https://ecommerce-analytics-garv999.streamlit.app/)**  
-
+![Dashboard Preview](outputs/figures/dashboard.png)
 ## 🎯 Business Context
 
 As a Product/Data Analyst at an e-commerce company, this project aims to answer core growth and retention questions:
