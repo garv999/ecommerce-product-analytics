@@ -9,10 +9,10 @@ st.set_page_config(
     layout="wide"
 )
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+import os
 
 data_path = os.path.join(
-    BASE_DIR,
+    os.getcwd(),
     "data",
     "processed",
     "cleaned_online_retail.csv"
