@@ -58,7 +58,11 @@ ecommerce-product-analytics/
 │   └── config.toml
 
 ├── dashboard/
-│   └── app.py
+│   ├── app.py
+│   └── pages/
+│       ├── 1_Product_Analysis.py
+│       ├── 2_Customer_Analysis.py
+│       └── 3_Churn_Analysis.py
 
 ├── data/
 │   ├── raw/
