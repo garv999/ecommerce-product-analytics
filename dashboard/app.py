@@ -11,8 +11,11 @@ st.set_page_config(
 
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 data_path = os.path.join(
-    os.getcwd(),
+    BASE_DIR,
+    "..",
     "data",
     "processed",
     "cleaned_online_retail.csv"
