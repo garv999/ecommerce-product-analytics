@@ -1,8 +1,17 @@
 import streamlit as st
 import pandas as pd
-import streamlit as st
-import pandas as pd
 import os
+import datetime
+
+st.set_page_config(
+    page_title="Ecommerce Analytics Dashboard",
+    layout="wide"
+)
+
+# Last updated timestamp
+current_time = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
+
+st.caption(f"📅 Last Updated: {current_time}")
 
 st.set_page_config(
     page_title="Ecommerce Analytics Dashboard",
