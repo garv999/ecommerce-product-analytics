@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import datetime
 
+
 st.set_page_config(
     page_title="Ecommerce Analytics Dashboard",
     layout="wide"
@@ -12,11 +13,6 @@ st.set_page_config(
 current_time = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
 
 st.caption(f"📅 Last Updated: {current_time}")
-
-st.set_page_config(
-    page_title="Ecommerce Analytics Dashboard",
-    layout="wide"
-)
 
 import os
 
@@ -51,17 +47,26 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-df = pd.read_csv(data_path)
+# df = pd.read_csv(data_path)
 
-df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
+# df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
+with st.spinner("🔄 Preparing your dashboard..."):
 
-# --------------------
+    df = pd.read_csv(data_path)
+
+    df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
+
+    df["Revenue"] = df["Quantity"] * df["Price"]
+
 # Sidebar Filters
-# --------------------
+if "selected_country" not in st.session_state:
+    st.session_state.selected_country = "All"
 
-# --------------------
-# Sidebar Filters
-# --------------------
+if "date_range" not in st.session_state:
+    st.session_state.date_range = [
+        df["InvoiceDate"].min(),
+        df["InvoiceDate"].max()
+    ]
 
 st.sidebar.title("Dashboard Filters")
 st.sidebar.markdown("---")
@@ -72,16 +77,34 @@ countries = df["Country"].unique()
 
 selected_country = st.sidebar.selectbox(
     "Select Country",
-    ["All"] + list(countries)
+    ["All"] + list(countries),
+    key="selected_country"
 )
 
-min_date = df["InvoiceDate"].min()
-max_date = df["InvoiceDate"].max()
+min_date = df["InvoiceDate"].min().date()
+max_date = df["InvoiceDate"].max().date()
 
-start_date, end_date = st.sidebar.date_input(
+def reset_filters():
+    st.session_state.selected_country = "All"
+    st.session_state.date_range = [min_date, max_date]
+
+date_range = st.sidebar.date_input(
     "Select Date Range",
-    [min_date, max_date]
+    value=st.session_state.date_range,
+    min_value=min_date,
+    max_value=max_date,
+    key="date_range"
 )
+
+if len(date_range) == 2:
+    start_date, end_date = date_range
+else:
+    st.warning("⚠️ Please select both start and end date.")
+    st.stop()
+
+if start_date < min_date or end_date > max_date:
+    st.warning("⚠️ Selected date is outside available data range.")
+    st.stop()
 
 # Apply country filter
 if selected_country != "All":
@@ -104,6 +127,8 @@ st.markdown(
     """
 )
 st.divider()
+
+st.sidebar.button("🔄 Reset Filters", on_click=reset_filters)
 
 # --------------------
 # Dataset Overview
@@ -129,7 +154,6 @@ df_filtered["Revenue"] = (
 # --------------------
 # KPIs
 # --------------------
-df_filtered["Revenue"] = df_filtered["Quantity"] * df_filtered["Price"]
 
 total_revenue = df_filtered["Revenue"].sum()
 total_orders = df_filtered["Invoice"].nunique()
