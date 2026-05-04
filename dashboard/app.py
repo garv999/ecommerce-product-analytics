@@ -94,6 +94,9 @@ df_filtered = df_filtered[
     (df_filtered["InvoiceDate"] >= pd.to_datetime(start_date)) &
     (df_filtered["InvoiceDate"] <= pd.to_datetime(end_date))
 ]
+if df_filtered.empty:
+    st.warning("⚠️ No data available for selected filters. Try adjusting your filters.")
+    st.stop()
 st.markdown(
     """
     # 📊 Ecommerce Product Analytics Dashboard
