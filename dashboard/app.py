@@ -133,10 +133,7 @@ st.divider()
 
 st.sidebar.button("🔄 Reset Filters", on_click=reset_filters)
 
-# --------------------
 # Dataset Overview
-# --------------------
-
 st.markdown("## Dataset Overview")
 
 colA, colB = st.columns(2)
@@ -145,10 +142,7 @@ colB.metric("Columns", df.shape[1])
 
 st.dataframe(df.head())
 
-# --------------------
 # Revenue column
-# --------------------
-
 df_filtered["Revenue"] = (
     df_filtered["Quantity"] *
     df_filtered["Price"]
@@ -163,11 +157,11 @@ def format_currency(value):
         return f"₹{value/1_000:.2f} K"
     else:
         return f"₹{value:.0f}"
+    
+def convert_to_csv(df):
+    return df.to_csv(index=False).encode("utf-8")
 
-# --------------------
 # KPIs
-# --------------------
-
 total_revenue = df_filtered["Revenue"].sum()
 total_orders = df_filtered["Invoice"].nunique()
 total_customers = df_filtered["Customer ID"].nunique()
@@ -192,6 +186,13 @@ k3.metric(
 )
 
 st.divider()
+csv = convert_to_csv(df_filtered)
+st.download_button(
+    label="Download Filtered Data⬇ (csv)",
+    data=csv,
+    file_name="ecommerce_filtered_data.csv",
+    mime="text/csv"
+)
 
 tab1, tab2, tab3 = st.tabs([
     "📈 Revenue Analysis",
@@ -199,9 +200,8 @@ tab1, tab2, tab3 = st.tabs([
     "📦 Product Insights"
 ])
 st.caption("All revenue values shown in INR (₹)")
-# --------------------
+
 # Monthly + Country side by side
-# --------------------
 
 df_filtered["YearMonth"] = df_filtered["InvoiceDate"].dt.to_period("M")
 
@@ -221,10 +221,8 @@ country_revenue = (
 )
 
 import matplotlib.pyplot as plt
-# --------------------
-# Tabs Layout
-# --------------------
 
+# Tabs Layout
 with tab1:
 
     st.subheader("Monthly Revenue Trend")

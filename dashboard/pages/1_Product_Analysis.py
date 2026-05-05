@@ -30,12 +30,6 @@ top_products = (
     .head(10)
 )
 
-# fig, ax = plt.subplots(figsize=(8,4))
-
-# ax.bar(top_products.index, top_products.values)
-# plt.xticks(rotation=75)
-
-# st.pyplot(fig)
 top_products_df = top_products.reset_index()
 top_products_df.columns = ["Product", "Revenue"]
 
@@ -60,13 +54,6 @@ top_quantity = (
     .sort_values(ascending=False)
     .head(10)
 )
-
-# fig2, ax2 = plt.subplots(figsize=(8,4))
-
-# ax2.bar(top_quantity.index, top_quantity.values)
-# plt.xticks(rotation=75)
-
-# st.pyplot(fig2)
 top_quantity_df = top_quantity.reset_index()
 top_quantity_df.columns = ["Product", "Quantity"]
 
