@@ -63,6 +63,8 @@ ecommerce-product-analytics/
 │       ├── 1_Product_Analysis.py
 │       ├── 2_Customer_Analysis.py
 │       └── 3_Churn_Analysis.py
+│   ├──styles/
+│       ├──style.css
 
 ├── data/
 │   ├── raw/
