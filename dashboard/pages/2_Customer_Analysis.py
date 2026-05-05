@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.io as pio
+
+pio.templates.default = "plotly_dark"
 
 st.title("👥 Customer Analysis")
 
@@ -27,12 +30,17 @@ top_customers = (
     .head(10)
 )
 
-fig, ax = plt.subplots(figsize=(8,4))
+top_customers_df = top_customers.reset_index()
+top_customers_df.columns = ["Customer", "Revenue"]
 
-ax.bar(top_customers.index.astype(str), top_customers.values)
-plt.xticks(rotation=45)
-
-st.pyplot(fig)
+fig = px.bar(
+    top_customers_df,
+    x="Customer",
+    y="Revenue",
+    title="Top Customers by Revenue"
+)
+fig.update_layout(xaxis_tickangle=-45)
+st.plotly_chart(fig, use_container_width=True)
 
 # ------------------------
 
@@ -43,8 +51,13 @@ orders = (
     .nunique()
 )
 
-fig2, ax2 = plt.subplots(figsize=(8,4))
+orders_df = orders.reset_index()
+orders_df.columns = ["Customer", "OrderCount"]
 
-orders.hist(ax=ax2)
-
-st.pyplot(fig2)
+fig2 = px.histogram(
+    orders_df,
+    x="OrderCount",
+    nbins=30,
+    title="Orders per Customer Distribution"
+)
+st.plotly_chart(fig2, use_container_width=True)
