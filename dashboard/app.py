@@ -64,8 +64,8 @@ if "selected_country" not in st.session_state:
 
 if "date_range" not in st.session_state:
     st.session_state.date_range = [
-        df["InvoiceDate"].min(),
-        df["InvoiceDate"].max()
+        df["InvoiceDate"].min().date(),
+        df["InvoiceDate"].max().date()
     ]
 
 st.sidebar.title("Dashboard Filters")
@@ -151,6 +151,16 @@ df_filtered["Revenue"] = (
     df_filtered["Price"]
 )
 
+def format_currency(value):
+    if value >= 1_00_00_000:
+        return f"₹{value/1_00_00_000:.2f} Cr"
+    elif value >= 1_00_000:
+        return f"₹{value/1_00_000:.2f} L"
+    elif value >= 1_000:
+        return f"₹{value/1_000:.2f} K"
+    else:
+        return f"₹{value:.0f}"
+
 # --------------------
 # KPIs
 # --------------------
@@ -165,17 +175,17 @@ k1, k2, k3 = st.columns(3)
 
 k1.metric(
     label="Total Revenue",
-    value=f"{total_revenue:,.0f}"
+    value=format_currency(total_revenue)
 )
 
 k2.metric(
     label="Total Orders",
-    value=total_orders
+    value=f"{total_orders:,}"
 )
 
 k3.metric(
     label="Total Customers",
-    value=total_customers
+    value=f"{total_customers:,}"
 )
 
 st.divider()
@@ -185,6 +195,7 @@ tab1, tab2, tab3 = st.tabs([
     "🌍 Geography",
     "📦 Product Insights"
 ])
+st.caption("All revenue values shown in INR (₹)")
 # --------------------
 # Monthly + Country side by side
 # --------------------
