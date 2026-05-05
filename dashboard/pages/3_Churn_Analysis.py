@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.io as pio
 import datetime as dt
+pio.templates.default = "plotly_dark"
 
 st.title("📉 Churn Analysis")
 
@@ -40,8 +42,15 @@ last_purchase["Status"] = last_purchase["DaysSinceLastPurchase"].apply(classify)
 
 status_counts = last_purchase["Status"].value_counts()
 
-fig, ax = plt.subplots(figsize=(6,4))
+churn_df = status_counts.reset_index()
+churn_df.columns = ["Status", "Count"]
 
-status_counts.plot(kind="bar", ax=ax)
-
-st.pyplot(fig)
+fig = px.bar(
+    churn_df,
+    x="Status",
+    y="Count",
+    title="Customer Churn Distribution",
+    color="Status"
+)
+fig.update_layout(xaxis_title="Customer Status", yaxis_title="Number of Customers")
+st.plotly_chart(fig, use_container_width=True)
