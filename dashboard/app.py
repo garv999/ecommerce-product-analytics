@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import os
 import datetime
+import plotly.express as px
+import plotly.io as pio
+pio.templates.default = "plotly_dark"
 
 
 st.set_page_config(
@@ -226,32 +229,32 @@ with tab1:
 
     st.subheader("Monthly Revenue Trend")
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig = px.line(
+    monthly_revenue,
+    x="YearMonth",
+    y="Revenue",
+    title="Monthly Revenue Trend",
+    markers=True
+)
 
-    ax.plot(
-        monthly_revenue["YearMonth"],
-        monthly_revenue["Revenue"]
-    )
-
-    plt.xticks(rotation=45)
-
-    st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 
 with tab2:
 
     st.subheader("Top Countries by Revenue")
 
-    fig2, ax2 = plt.subplots(figsize=(8, 4))
+    country_df = country_revenue.reset_index()
+    country_df.columns = ["Country", "Revenue"]
 
-    ax2.bar(
-        country_revenue.index,
-        country_revenue.values
+    fig2 = px.bar(
+        country_df,
+        x="Country",
+        y="Revenue",
+        title="Top Countries by Revenue"
     )
 
-    plt.xticks(rotation=45)
-
-    st.pyplot(fig2)
+    st.plotly_chart(fig2, use_container_width=True)
 
 
 with tab3:
@@ -265,13 +268,14 @@ with tab3:
         .head(10)
     )
 
-    fig3, ax3 = plt.subplots(figsize=(8, 4))
+    top_products_df = top_products.reset_index()
+    top_products_df.columns = ["Product", "Revenue"]
 
-    ax3.bar(
-        top_products.index,
-        top_products.values
+    fig3 = px.bar(
+        top_products_df,
+        x="Product",
+        y="Revenue",
+        title="Top Products by Revenue"
     )
 
-    plt.xticks(rotation=75)
-
-    st.pyplot(fig3)
+    st.plotly_chart(fig3, use_container_width=True)

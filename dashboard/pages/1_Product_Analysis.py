@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.io as pio
+
+pio.templates.default = "plotly_dark"
 
 st.title("📦 Product Analysis")
 
@@ -27,12 +30,25 @@ top_products = (
     .head(10)
 )
 
-fig, ax = plt.subplots(figsize=(8,4))
+# fig, ax = plt.subplots(figsize=(8,4))
 
-ax.bar(top_products.index, top_products.values)
-plt.xticks(rotation=75)
+# ax.bar(top_products.index, top_products.values)
+# plt.xticks(rotation=75)
 
-st.pyplot(fig)
+# st.pyplot(fig)
+top_products_df = top_products.reset_index()
+top_products_df.columns = ["Product", "Revenue"]
+
+fig = px.bar(
+    top_products_df,
+    x="Product",
+    y="Revenue",
+    title="Top Products by Revenue"
+)
+
+fig.update_layout(xaxis_tickangle=-45)
+
+st.plotly_chart(fig, use_container_width=True)
 
 # ------------------------
 
@@ -45,9 +61,22 @@ top_quantity = (
     .head(10)
 )
 
-fig2, ax2 = plt.subplots(figsize=(8,4))
+# fig2, ax2 = plt.subplots(figsize=(8,4))
 
-ax2.bar(top_quantity.index, top_quantity.values)
-plt.xticks(rotation=75)
+# ax2.bar(top_quantity.index, top_quantity.values)
+# plt.xticks(rotation=75)
 
-st.pyplot(fig2)
+# st.pyplot(fig2)
+top_quantity_df = top_quantity.reset_index()
+top_quantity_df.columns = ["Product", "Quantity"]
+
+fig2 = px.bar(
+    top_quantity_df,
+    x="Product",
+    y="Quantity",
+    title="Most Purchased Products"
+)
+
+fig2.update_layout(xaxis_tickangle=-45)
+
+st.plotly_chart(fig2, use_container_width=True)
