@@ -14,13 +14,9 @@ st.set_page_config(
 
 # Last updated timestamp
 current_time = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
-
 st.caption(f"📅 Last Updated: {current_time}")
 
-import os
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 data_path = os.path.join(
     BASE_DIR,
     "..",
@@ -50,9 +46,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# df = pd.read_csv(data_path)
 
-# df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 with st.spinner("🔄 Preparing your dashboard..."):
 
     df = pd.read_csv(data_path)
@@ -73,9 +67,7 @@ if "date_range" not in st.session_state:
 
 st.sidebar.title("Dashboard Filters")
 st.sidebar.markdown("---")
-
 df_filtered = df.copy()
-
 countries = df["Country"].unique()
 
 selected_country = st.sidebar.selectbox(
@@ -104,7 +96,6 @@ if len(date_range) == 2:
 else:
     st.warning("⚠️ Please select both start and end date.")
     st.stop()
-
 if start_date < min_date or end_date > max_date:
     st.warning("⚠️ Selected date is outside available data range.")
     st.stop()
@@ -130,16 +121,13 @@ st.markdown(
     """
 )
 st.divider()
-
 st.sidebar.button("🔄 Reset Filters", on_click=reset_filters)
 
 # Dataset Overview
 st.markdown("## Dataset Overview")
-
 colA, colB = st.columns(2)
 colA.metric("Rows", df.shape[0])
 colB.metric("Columns", df.shape[1])
-
 st.dataframe(df.head())
 
 # Revenue column
@@ -167,31 +155,45 @@ total_orders = df_filtered["Invoice"].nunique()
 total_customers = df_filtered["Customer ID"].nunique()
 
 st.markdown("## Key Metrics")
-
 k1, k2, k3 = st.columns(3)
-
 k1.metric(
     label="Total Revenue",
     value=format_currency(total_revenue)
 )
-
 k2.metric(
     label="Total Orders",
     value=f"{total_orders:,}"
 )
-
 k3.metric(
     label="Total Customers",
     value=f"{total_customers:,}"
 )
-
 st.divider()
 csv = convert_to_csv(df_filtered)
 st.download_button(
-    label="Download Filtered Data⬇ (csv)",
+    label="Download Filtered Data (CSV)⬇",
     data=csv,
     file_name="ecommerce_filtered_data.csv",
     mime="text/csv"
+)
+st.markdown("## 📌 Key Insights")
+
+#Key Insights
+#-------------
+# Top Country
+top_country = (
+    df_filtered.groupby("Country")["Revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .idxmax()
+)
+
+# Top Product
+top_product = (
+    df_filtered.groupby("Description")["Revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .idxmax()
 )
 
 tab1, tab2, tab3 = st.tabs([
@@ -199,7 +201,7 @@ tab1, tab2, tab3 = st.tabs([
     "🌍 Geography",
     "📦 Product Insights"
 ])
-st.caption("All revenue values shown in INR (₹)")
+# st.caption("All revenue values shown in INR (₹)")
 
 # Monthly + Country side by side
 
@@ -211,6 +213,26 @@ monthly_revenue = (
     .reset_index()
 )
 
+# Revenue Trend
+if len(monthly_revenue) > 1:
+    revenue_trend = (
+        "increasing"
+        if monthly_revenue["Revenue"].iloc[-1] > monthly_revenue["Revenue"].iloc[0]
+        else "declining"
+    )
+else:
+    revenue_trend = "stable"
+
+st.info(f"""
+📈 Revenue trend is **{revenue_trend}** over time.
+
+🌍 **Top Country:** {top_country}
+
+📦 **Best Selling Product:** {top_product}
+
+💡 Focus on high-performing products and regions to maximize growth.
+""")
+
 monthly_revenue["YearMonth"] = monthly_revenue["YearMonth"].astype(str)
 
 country_revenue = (
@@ -219,8 +241,6 @@ country_revenue = (
     .sort_values(ascending=False)
     .head(10)
 )
-
-import matplotlib.pyplot as plt
 
 # Tabs Layout
 with tab1:
@@ -234,8 +254,7 @@ with tab1:
     title="Monthly Revenue Trend",
     markers=True
 )
-
-st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 with tab2:
@@ -277,3 +296,4 @@ with tab3:
     )
 
     st.plotly_chart(fig3, use_container_width=True)
+st.caption("All revenue values shown in INR (₹)")
