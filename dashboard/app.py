@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import time
 import datetime
 import plotly.express as px
 import plotly.io as pio
@@ -17,6 +18,12 @@ current_time = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
 st.caption(f"📅 Last Updated: {current_time}")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def load_css():
+    css_path = os.path.join(BASE_DIR, "styles", "style.css")
+    with open(css_path) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+load_css()
 data_path = os.path.join(
     BASE_DIR,
     "..",
@@ -24,28 +31,7 @@ data_path = os.path.join(
     "processed",
     "cleaned_online_retail.csv"
 )
-st.markdown(
-    """
-    <style>
 
-    .stApp {
-        background-color: #0E1117;
-    }
-
-    section[data-testid="stSidebar"] {
-        background-color: #111827;
-    }
-
-    div[data-testid="stMetric"] {
-        background-color: #1F2937;
-        padding: 15px;
-        border-radius: 10px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 with st.spinner("🔄 Preparing your dashboard..."):
 
@@ -69,6 +55,8 @@ st.sidebar.title("Dashboard Filters")
 st.sidebar.markdown("---")
 df_filtered = df.copy()
 countries = df["Country"].unique()
+
+
 
 selected_country = st.sidebar.selectbox(
     "Select Country",
@@ -149,25 +137,35 @@ def format_currency(value):
 def convert_to_csv(df):
     return df.to_csv(index=False).encode("utf-8")
 
+def animate_metric(label, value, formatter):
+    placeholder = st.empty()
+    
+    steps = 20
+    for i in range(1, steps + 1):
+        current_value = value * i / steps
+        placeholder.metric(label, formatter(current_value))
+        time.sleep(0.02)
+    
+    placeholder.metric(label, formatter(value))
+
 # KPIs
 total_revenue = df_filtered["Revenue"].sum()
 total_orders = df_filtered["Invoice"].nunique()
 total_customers = df_filtered["Customer ID"].nunique()
 
 st.markdown("## Key Metrics")
+
 k1, k2, k3 = st.columns(3)
-k1.metric(
-    label="Total Revenue",
-    value=format_currency(total_revenue)
-)
-k2.metric(
-    label="Total Orders",
-    value=f"{total_orders:,}"
-)
-k3.metric(
-    label="Total Customers",
-    value=f"{total_customers:,}"
-)
+
+with k1:
+    animate_metric("Total Revenue", total_revenue, format_currency)
+
+with k2:
+    animate_metric("Total Orders", total_orders, lambda x: f"{int(x):,}")
+
+with k3:
+    animate_metric("Total Customers", total_customers, lambda x: f"{int(x):,}")
+
 st.divider()
 csv = convert_to_csv(df_filtered)
 st.download_button(
@@ -181,7 +179,6 @@ st.markdown("## 📌 Key Insights")
 @st.cache_data
 def compute_insights(df):
     import time
-    time.sleep(3)
     top_country = (
         df.groupby("Country")["Revenue"]
         .sum()
@@ -196,7 +193,6 @@ def compute_insights(df):
         .idxmax()
     )
 
-    # df["YearMonth"] = df["InvoiceDate"].dt.to_period("M")
     df_copy = df.copy()
     df_copy["YearMonth"] = df_copy["InvoiceDate"].dt.to_period("M")
 
@@ -232,37 +228,30 @@ tab1, tab2, tab3 = st.tabs([
     "🌍 Geography",
     "📦 Product Insights"
 ])
-# st.caption("All revenue values shown in INR (₹)")
 
-# Monthly + Country side by side
+st.markdown(f"""
+<div class="insight-card">
 
-# df_filtered["YearMonth"] = df_filtered["InvoiceDate"].dt.to_period("M")
+<div class="insight-title">📊 Revenue Insights</div>
 
-# monthly_revenue = (
-#     df_filtered.groupby("YearMonth")["Revenue"]
-#     .sum()
-#     .reset_index()
-# )
+<div class="insight-item">
+📈 <b>Trend:</b> {revenue_trend.capitalize()} over time
+</div>
 
-# # Revenue Trend
-# if len(monthly_revenue) > 1:
-#     revenue_trend = (
-#         "increasing"
-#         if monthly_revenue["Revenue"].iloc[-1] > monthly_revenue["Revenue"].iloc[0]
-#         else "declining"
-#     )
-# else:
-#     revenue_trend = "stable"
+<div class="insight-item">
+🌍 <b>Top Country:</b> {top_country}
+</div>
 
-st.info(f"""
-📈 Revenue trend is **{revenue_trend}** over time.
+<div class="insight-item">
+📦 <b>Best Product:</b> {top_product}
+</div>
 
-🌍 **Top Country:** {top_country}
+<div class="insight-note">
+💡 Focus on high-performing products and regions to maximize growth
+</div>
 
-📦 **Best Selling Product:** {top_product}
-
-💡 Focus on high-performing products and regions to maximize growth.
-""")
+</div>
+""", unsafe_allow_html=True)
 
 monthly_revenue["YearMonth"] = monthly_revenue["YearMonth"].astype(str)
 
