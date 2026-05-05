@@ -178,23 +178,54 @@ st.download_button(
 )
 st.markdown("## 📌 Key Insights")
 
-#Key Insights
-#-------------
-# Top Country
-top_country = (
-    df_filtered.groupby("Country")["Revenue"]
-    .sum()
-    .sort_values(ascending=False)
-    .idxmax()
-)
+@st.cache_data
+def compute_insights(df):
+    import time
+    time.sleep(3)
+    top_country = (
+        df.groupby("Country")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .idxmax()
+    )
 
-# Top Product
-top_product = (
-    df_filtered.groupby("Description")["Revenue"]
-    .sum()
-    .sort_values(ascending=False)
-    .idxmax()
-)
+    top_product = (
+        df.groupby("Description")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .idxmax()
+    )
+
+    # df["YearMonth"] = df["InvoiceDate"].dt.to_period("M")
+    df_copy = df.copy()
+    df_copy["YearMonth"] = df_copy["InvoiceDate"].dt.to_period("M")
+
+    monthly_revenue = (
+    df_copy.groupby("YearMonth")["Revenue"]
+        .sum()
+        .reset_index()
+    )
+
+    if len(monthly_revenue) > 1:
+        revenue_trend = (
+            "increasing"
+            if monthly_revenue["Revenue"].iloc[-1] > monthly_revenue["Revenue"].iloc[0]
+            else "declining"
+        )
+    else:
+        revenue_trend = "stable"
+
+    return top_country, top_product, revenue_trend, monthly_revenue
+
+loader = st.empty()
+
+loader.info("🔍 Generating insights... Please wait")
+
+top_country, top_product, revenue_trend, monthly_revenue = compute_insights(df_filtered)
+
+loader.empty()
+
+
 
 tab1, tab2, tab3 = st.tabs([
     "📈 Revenue Analysis",
@@ -205,23 +236,23 @@ tab1, tab2, tab3 = st.tabs([
 
 # Monthly + Country side by side
 
-df_filtered["YearMonth"] = df_filtered["InvoiceDate"].dt.to_period("M")
+# df_filtered["YearMonth"] = df_filtered["InvoiceDate"].dt.to_period("M")
 
-monthly_revenue = (
-    df_filtered.groupby("YearMonth")["Revenue"]
-    .sum()
-    .reset_index()
-)
+# monthly_revenue = (
+#     df_filtered.groupby("YearMonth")["Revenue"]
+#     .sum()
+#     .reset_index()
+# )
 
-# Revenue Trend
-if len(monthly_revenue) > 1:
-    revenue_trend = (
-        "increasing"
-        if monthly_revenue["Revenue"].iloc[-1] > monthly_revenue["Revenue"].iloc[0]
-        else "declining"
-    )
-else:
-    revenue_trend = "stable"
+# # Revenue Trend
+# if len(monthly_revenue) > 1:
+#     revenue_trend = (
+#         "increasing"
+#         if monthly_revenue["Revenue"].iloc[-1] > monthly_revenue["Revenue"].iloc[0]
+#         else "declining"
+#     )
+# else:
+#     revenue_trend = "stable"
 
 st.info(f"""
 📈 Revenue trend is **{revenue_trend}** over time.
