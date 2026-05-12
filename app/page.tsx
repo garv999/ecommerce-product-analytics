@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import {
   LineChart,
+  BarChart,
+  Bar,
   Line,
   XAxis,
   YAxis,
@@ -32,59 +34,26 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 
-const revenueDataMap = {
-  "7D": [
-    { month: "Mon", revenue: 12000 },
-    { month: "Tue", revenue: 18000 },
-    { month: "Wed", revenue: 15000 },
-    { month: "Thu", revenue: 22000 },
-    { month: "Fri", revenue: 25000 },
-    { month: "Sat", revenue: 21000 },
-    { month: "Sun", revenue: 28000 },
-  ],
-
-  "30D": [
-    { month: "Week 1", revenue: 40000 },
-    { month: "Week 2", revenue: 30000 },
-    { month: "Week 3", revenue: 50000 },
-    { month: "Week 4", revenue: 65000 },
-  ],
-
-  "6M": [
-    { month: "Jan", revenue: 40000 },
-    { month: "Feb", revenue: 30000 },
-    { month: "Mar", revenue: 50000 },
-    { month: "Apr", revenue: 45000 },
-    { month: "May", revenue: 70000 },
-    { month: "Jun", revenue: 65000 },
-  ],
-};
-const recentOrders = [
+const sidebarItems = [
   {
-    customer: "Garv Agarwal",
-    product: "Wireless Mouse",
-    amount: "₹4,500",
-    status: "Completed",
+    title: "Dashboard",
+    icon: LayoutDashboard,
   },
   {
-    customer: "Ananya Yadav",
-    product: "Gaming Keyboard",
-    amount: "₹7,200",
-    status: "Pending",
+    title: "Products",
+    icon: ShoppingCart,
   },
   {
-    customer: "Aayush Tripathi",
-    product: "Monitor",
-    amount: "₹15,000",
-    status: "Completed",
+    title: "Customers",
+    icon: Users,
   },
   {
-    customer: "Rahul Sharma",
-    product: "Laptop Stand",
-    amount: "₹2,300",
-    status: "Cancelled",
+    title: "Revenue",
+    icon: TrendingUp,
   },
 ];
 
@@ -92,78 +61,181 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState("6M");
-  const revenueData =
-    revenueDataMap[selectedPeriod as keyof typeof revenueDataMap];
+  const [activeSidebar, setActiveSidebar] = useState("Dashboard");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const notifications = [
+    {
+      title: "Revenue increased by 12%",
+      time: "2 min ago",
+    },
+    {
+      title: "New customer registered",
+      time: "10 min ago",
+    },
+    {
+      title: "Top product sales spiked",
+      time: "25 min ago",
+    },
+  ];
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch("/api/analytics");
+        if (!response.ok) {
+          throw new Error("Failed to fetch analytics");
+        }
+        const data = await response.json();
+        setAnalytics(data);
+      } catch (error) {
+        console.error("Analytics Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+  const fullRevenueData =
+    analytics?.revenueChartData || [];
+  let revenueData = [];
+  if (selectedPeriod === "7D") {
+    revenueData = fullRevenueData.slice(-7);
+  }
+  if (selectedPeriod === "30D") {
+    revenueData = fullRevenueData.slice(-12);
+  }
+  if (selectedPeriod === "6M") {
+    revenueData = fullRevenueData;
+  }
+  const recentOrders =
+    analytics?.recentOrders || [];
+    if (loading) {
+      return (
+        <div
+        className="
+          min-h-screen
+          bg-black
+          flex
+          items-center
+          justify-center
+          text-white
+          text-2xl
+        "
+      >
+        Loading Analytics...
+      </div>
+    );
+  }
+  const cardStyles = darkMode
+    ? `
+        bg-white/[0.03]
+        border-white/5
+        text-white
+      `
+    : `
+        bg-white/90
+        border border-black/5
+        text-black
+        shadow-[0_4px_30px_rgba(0,0,0,0.06)]
+        backdrop-blur-xl
+      `;
+
+  const secondaryText = darkMode
+    ? "text-gray-400"
+    : "text-gray-500";
+
+  const inputStyles = darkMode
+    ? `
+      bg-white/[0.03]
+      border-white/5
+      text-white
+    `
+    : `
+      bg-white/80
+      border-black/5
+      text-black
+      backdrop-blur-xl
+    `;
   return (
-    <main className="
-    min-h-screen
-    bg-black
-    to-black
-    text-white
-    flex
-    overflow-hidden
-    relative
-    ">
+    <main
+      className={`
+        relative
+        min-h-screen
+        flex
+        overflow-hidden
+        transition-all
+        duration-500
+        ${
+          darkMode
+            ? "bg-black text-white"
+            : "bg-[#EEF2F7] text-black"
+        }
+      `}
+    >
       {/* BACKGROUND ORBS */}
 
       <div
         className="
           absolute
-          top-[-200px]
+          top-[-120px]
           left-[-120px]
-          w-[500px]
-          h-[500px]
+          w-[350px]
+          h-[350px]
           bg-emerald-500/20
           rounded-full
           blur-3xl
           animate-pulse
+          pointer-events-none
         "
       />
 
       <div
         className="
           absolute
-          bottom-[-250px]
-          right-[-100px]
-          w-[500px]
-          h-[500px]
+          bottom-[-120px]
+          right-[-120px]
+          w-[350px]
+          h-[350px]
           bg-cyan-500/20
           rounded-full
           blur-3xl
           animate-pulse
+          pointer-events-none
         "
       />
 
       <div
         className="
           absolute
-          top-[30%]
-          left-[40%]
-          w-[350px]
-          h-[350px]
+          top-[35%]
+          left-[45%]
+          w-[250px]
+          h-[250px]
           bg-purple-500/10
           rounded-full
           blur-3xl
+          pointer-events-none
         "
       />
 
       {/* SIDEBAR */}
       <aside className={`
-      ${sidebarOpen ? "w-64" : "w-24"}
-      transition-all
-      duration-500
-      ease-in-out
-      bg-black/40
-      backdrop-blur-2xl
-      border-r
-      border-white/10
-      p-6
-      hidden
-      md:flex
-      flex-col
-      relative
-      z-10
-      `}
+              ${
+                sidebarOpen ? "w-72" : "w-24"
+              }
+              transition-all duration-500
+              border-r
+              backdrop-blur-xl
+              p-6
+              hidden md:flex flex-col
+              ${
+                darkMode
+                  ? "bg-[#050505] border-white/5"
+                  : "bg-white border-black/5"
+              }
+            `}
       >
         <h1 className="text-2xl font-bold text-emerald-400 mb-10 transition-all duration-300">
           {sidebarOpen ? "EcommerceAI" : "EA"}
@@ -183,107 +255,81 @@ export default function Home() {
           )}
         </button>
 
-        <nav className="space-y-4">
-          <div
-            className={`
-              flex items-center
-              ${sidebarOpen ? "justify-start" : "justify-center"}
-              gap-3
-              px-3
-              py-3
-              rounded-xl
-              transition-all
-              duration-300
-              bg-emerald-500/10
-              border border-emerald-500/20
-              shadow-[0_0_20px_rgba(16,185,129,0.15)]
-              text-emerald-400
-              cursor-pointer
-            `}
-          >
-            <LayoutDashboard size={20} />
-
-            {sidebarOpen && (
-              <span className="font-medium">
-                Dashboard
-              </span>
-            )}
-          </div>
-          <div
-            className={`
-              flex items-center
-              ${sidebarOpen ? "justify-start" : "justify-center"}
-              gap-3
-              px-3
-              py-3
-              rounded-xl
-              transition-all
-              duration-300
-              text-gray-400
-              hover:text-white
-              hover:bg-white/5
-              hover:translate-x-1
-              cursor-pointer
-            `}
-          >
-            <ShoppingCart size={20} />
-
-            {sidebarOpen && <span>Products</span>}
-          </div>
-
-          <div
-            className={`
-              flex items-center
-              ${sidebarOpen ? "justify-start" : "justify-center"}
-              gap-3
-              px-3
-              py-3
-              rounded-xl
-              transition-all
-              duration-300
-              text-gray-400
-              hover:text-white
-              hover:bg-white/5
-              hover:translate-x-1
-              cursor-pointer
-            `}
-          >
-            <Users size={20} />
-
-            {sidebarOpen && <span>Customers</span>}
-          </div>
-
-          <div
-            className={`
-              flex items-center
-              ${sidebarOpen ? "justify-start" : "justify-center"}
-              gap-3
-              px-3
-              py-3
-              rounded-xl
-              transition-all
-              duration-300
-              text-gray-400
-              hover:text-white
-              hover:bg-white/5
-              hover:translate-x-1
-              cursor-pointer
-            `}
-          >
-            <TrendingUp size={20} />
-
-            {sidebarOpen && <span>Revenue</span>}
-          </div>
+        <nav className="space-y-3">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              activeSidebar === item.title;
+            return (
+              <div
+                key={item.title}
+                onClick={() =>
+                  setActiveSidebar(item.title)
+                }
+                className={`
+                  flex items-center
+                  ${sidebarOpen
+                    ? "justify-start"
+                    : "justify-center"}
+                  gap-3
+                  px-4
+                  py-3
+                  rounded-2xl
+                  transition-all
+                  duration-300
+                  cursor-pointer
+                  group
+                  ${
+                    isActive
+                      ? `
+                        bg-emerald-500/10
+                        border border-emerald-500/20
+                        text-emerald-400
+                        shadow-[0_0_30px_rgba(16,185,129,0.18)]
+                      `
+                      : `
+                        text-gray-400
+                        hover:text-white
+                        ${
+                          darkMode
+                            ? "hover:bg-white/[0.04]"
+                            : "hover:bg-black/[0.03]"
+                        }
+                      `
+                  }
+                `}
+              >
+                <Icon
+                  size={20}
+                  className={`
+                    transition-all
+                    duration-300
+                    ${
+                      isActive
+                        ? "text-emerald-400"
+                        : "group-hover:scale-110"
+                    }
+                  `}
+                />
+                {sidebarOpen && (
+                  <span className="font-medium">
+                    {item.title}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </aside>
 
       {/* MAIN CONTENT */}
       <section className="
-      flex-1
-      p-8
-      backdrop-blur-sm
-      relative
-      z-10
+        flex-1
+        p-8
+        backdrop-blur-sm
+        relative
+        z-10
+        overflow-x-hidden
       ">
 
         {/* MOBILE MENU BUTTON */}
@@ -318,28 +364,32 @@ export default function Home() {
         ">
 
           {/* SEARCH BAR */}
-          <div className="
-            flex items-center gap-3
-            bg-white/[0.03]
-            border border-white/5
-            rounded-2xl
-            px-4 py-3
-            w-full md:w-[400px]
-          ">
+          <div
+            className={`
+              flex items-center gap-3
+              rounded-2xl
+              px-4 py-3
+              w-full md:w-[400px]
+              border
+              ${inputStyles}
+            `}
+          >
 
-            <Search size={18} className="text-gray-400" />
+            <Search size={18} className={secondaryText} />
 
             <input
               type="text"
               placeholder="Search analytics..."
-              className="
+              className={`
                 bg-transparent
                 outline-none
                 text-sm
                 w-full
-                text-white
-                placeholder:text-gray-500
-              "
+                ${darkMode ? "text-white" : "text-black"}
+                ${darkMode
+                  ? "placeholder:text-gray-500"
+                  : "placeholder:text-gray-400"}
+              `}
             />
 
           </div>
@@ -347,28 +397,170 @@ export default function Home() {
   {/* RIGHT SECTION */}
   <div className="flex items-center gap-4">
 
-    {/* NOTIFICATION */}
-    <div className="
+  {/* DARK MODE TOGGLE */}
+
+  <button
+    onClick={() => setDarkMode(!darkMode)}
+    className={`
       w-12 h-12
       rounded-2xl
-      bg-white/[0.03]
-      border border-white/5
+      border
       flex items-center justify-center
-      hover:border-emerald-400/30
       transition-all duration-300
-      cursor-pointer
-    ">
-      <Bell size={18} />
+      ${
+        darkMode
+          ? `
+            bg-white/[0.03]
+            border-white/5
+            hover:border-yellow-400/30
+            hover:shadow-[0_0_25px_rgba(250,204,21,0.15)]
+          `
+          : `
+            bg-white
+            border-black/10
+            hover:border-black/20
+          `
+      }
+    `}
+  >
+
+    {darkMode ? (
+      <Sun size={18} className="text-yellow-300" />
+    ) : (
+      <Moon size={18} className="text-black" />
+    )}
+
+  </button>
+
+    {/* NOTIFICATION */}
+    <div className="relative">
+
+      <div
+        onClick={() =>
+          setShowNotifications(
+            !showNotifications
+          )
+        }
+        className={`
+          w-12 h-12
+          rounded-2xl
+          border
+          flex items-center justify-center
+          transition-all duration-300
+          cursor-pointer
+          relative
+          ${inputStyles}
+        `}
+      >
+
+        <Bell size={18} />
+
+        {/* DOT */}
+        <div className="
+          absolute
+          top-3 right-3
+          w-2 h-2
+          rounded-full
+          bg-emerald-400
+          animate-pulse
+        " />
+
+      </div>
+
+      {/* DROPDOWN */}
+      {showNotifications && (
+
+        <div
+          className={`
+            absolute
+            right-0
+            mt-4
+            w-[320px]
+            rounded-3xl
+            border
+            backdrop-blur-2xl
+            shadow-[0_0_40px_rgba(0,0,0,0.4)]
+            overflow-hidden
+            z-50
+            animate-in
+            fade-in
+            slide-in-from-top-2
+            duration-300
+            ${
+              darkMode
+                ? "bg-black/80 border-white/10"
+                : "bg-white/90 border-black/5"
+            }
+          `}
+        >
+
+          <div className="
+            p-5 border-b border-white/5
+          ">
+
+            <h3 className="font-semibold text-lg">
+              Notifications
+            </h3>
+
+          </div>
+
+          <div className="p-3 space-y-2">
+
+            {notifications.map(
+              (notification, index) => (
+
+                <div
+                  key={index}
+                  className={`
+                    p-4 rounded-2xl
+                    transition-all duration-300
+                    cursor-pointer
+                    ${
+                      darkMode
+                        ? "bg-white/[0.03] hover:bg-white/[0.05]"
+                        : "bg-black/[0.03] hover:bg-black/[0.05]"
+                    }
+                  `}
+                >
+
+                  <p
+                    className={`
+                      text-sm
+                      ${darkMode ? "text-white" : "text-black"}
+                    `}
+                  >
+                    {notification.title}
+                  </p>
+
+                  <p className="
+                    text-xs text-gray-400 mt-1
+                  ">
+                    {notification.time}
+                  </p>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
 
     {/* PROFILE */}
-    <div className="
-      flex items-center gap-3
-      bg-white/[0.03]
-      border border-white/5
-      rounded-2xl
-      px-3 py-2
-    ">
+    <div
+      className={`
+        flex items-center gap-3
+        rounded-2xl
+        px-3 py-2
+        border
+        ${inputStyles}
+      `}
+    >
 
       <div className="
         w-10 h-10
@@ -410,54 +602,54 @@ export default function Home() {
         {/* KPI CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <Card className="
-          bg-white/[0.03]
-          border-white/5
-          backdrop-blur-2xl
-          text-white
-          transition-all
-          duration-300
-          hover:-translate-y-1
-          hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-          hover:border-emerald-400/20
-          ">
+          <Card
+            className={`
+              ${cardStyles}
+              backdrop-blur-2xl
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+              hover:border-emerald-400/20
+            `}
+          >
             <CardContent className="p-6">
-              <p className="text-gray-400">Total Revenue</p>
-              <h3 className="text-3xl font-bold mt-2">₹1.76 Cr</h3>
+              <p className={secondaryText}>Total Revenue</p>
+              <h3 className="text-3xl font-bold mt-2">₹{analytics? (analytics.totalRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
             </CardContent>
           </Card>
 
-          <Card className="
-          bg-white/[0.03]
-          border-white/5
-          backdrop-blur-2xl
-          text-white
-          transition-all
-          duration-300
-          hover:-translate-y-1
-          hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-          hover:border-emerald-400/20
-          ">
+          <Card
+            className={`
+              ${cardStyles}
+              backdrop-blur-2xl
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+              hover:border-emerald-400/20
+            `}
+          >
             <CardContent className="p-6">
-              <p className="text-gray-400">Total Orders</p>
-              <h3 className="text-3xl font-bold mt-2">36,934</h3>
+              <p className={secondaryText}>Total Orders</p>
+              <h3 className="text-3xl font-bold mt-2">{analytics?.totalOrders?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
-          <Card className="
-          bg-white/[0.03]
-          border-white/5
-          backdrop-blur-2xl
-          text-white
-          transition-all
-          duration-300
-          hover:-translate-y-1
-          hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-          hover:border-emerald-400/20
-          ">
+          <Card
+            className={`
+              ${cardStyles}
+              backdrop-blur-2xl
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+              hover:border-emerald-400/20
+            `}
+          >
             <CardContent className="p-6">
-              <p className="text-gray-400">Customers</p>
-              <h3 className="text-3xl font-bold mt-2">5,880</h3>
+              <p className={secondaryText}>Customers</p>
+              <h3 className="text-3xl font-bold mt-2">{analytics?.totalCustomers?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -467,16 +659,17 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
 
   {/* GROWTH */}
-  <Card className="
-    bg-white/[0.03]
-    border-white/5
-    text-white
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:shadow-[0_0_35px_rgba(16,185,129,0.25)]
-    hover:border-emerald-400/20
-  ">
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
     <CardContent className="p-6">
 
       <div className="flex items-center justify-between">
@@ -509,16 +702,17 @@ export default function Home() {
   </Card>
 
   {/* ACTIVE USERS */}
-  <Card className="
-    bg-white/[0.03]
-    border-white/5
-    text-white
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:shadow-[0_0_35px_rgba(59,130,246,0.25)]
-    hover:border-blue-400/20
-  ">
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
     <CardContent className="p-6">
 
       <div className="flex items-center justify-between">
@@ -551,16 +745,17 @@ export default function Home() {
   </Card>
 
   {/* CONVERSION */}
-  <Card className="
-    bg-white/[0.03]
-    border-white/5
-    text-white
+<Card
+  className={`
+    ${cardStyles}
+    backdrop-blur-2xl
     transition-all
     duration-300
     hover:-translate-y-1
-    hover:shadow-[0_0_35px_rgba(168,85,247,0.25)]
-    hover:border-purple-400/20
-  ">
+    hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+    hover:border-emerald-400/20
+  `}
+>
     <CardContent className="p-6">
 
       <div className="flex items-center justify-between">
@@ -595,15 +790,17 @@ export default function Home() {
 </div>
         {/* CHART SECTION */}
         <div className="mt-8">
-  <Card className="
-  bg-white/[0.03]
-  border-white/5
-  backdrop-blur-2xl
-  text-white
-  transition-all
-  duration-300
-  hover:shadow-[0_0_40px_rgba(6,182,212,0.18)]
-  ">
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
     <CardContent className="p-6">
 
       <div className="mb-6">
@@ -612,7 +809,11 @@ export default function Home() {
         </h3>
 
         <p className="text-gray-400 mt-1">
-          Monthly revenue performance
+          {selectedPeriod === "7D"
+            ? "Last 7 records revenue trend"
+            : selectedPeriod === "30D"
+            ? "Last 12 records revenue trend"
+            : "Full revenue performance"}
         </p>
       </div>
       <div className="flex gap-3 mt-6 mb-8 flex-wrap">
@@ -640,27 +841,20 @@ export default function Home() {
         </div>
 
       <div className="h-[350px]">
-
-        <ResponsiveContainer width="100%" height="100%">
-
+        <ResponsiveContainer width="99%" height="100%">
           <LineChart
             data={revenueData}
             margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
           >
-
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-
             <XAxis
               dataKey="month"
               stroke="#9ca3af"
             />
-
             <YAxis
               stroke="#9ca3af"
             />
-
             <Tooltip />
-
             <Line
               type="monotone"
               dataKey="revenue"
@@ -678,28 +872,189 @@ export default function Home() {
               animationDuration={800}
               animationEasing="ease-in-out"
             />
-
           </LineChart>
-
         </ResponsiveContainer>
-
       </div>
-
     </CardContent>
   </Card>
 </div>
+
+{/* TOP COUNTRIES */}
+<div className="mt-8">
+
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
+    <CardContent className="p-6">
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold">
+          Top Countries
+        </h3>
+        <p className="text-gray-400 mt-1">
+          Revenue contribution by country
+        </p>
+      </div>
+      <div className="h-[350px]">
+        <ResponsiveContainer width="99%" height="100%">
+          <BarChart
+            data={analytics?.topCountries || []}
+            layout="vertical"
+            margin={{ top: 10, right: 20, left: 20, bottom: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1f2937"
+            />
+            <XAxis
+              type="number"
+              stroke="#9ca3af"
+            />
+            <YAxis
+              type="category"
+              dataKey="country"
+              stroke="#9ca3af"
+              width={120}
+            />
+            <Tooltip />
+            <Bar
+              dataKey="revenue"
+              fill="#10b981"
+              radius={[0, 10, 10, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
+{/* TOP PRODUCTS */}
+<div className="mt-8">
+
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
+    <CardContent className="p-6">
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold">
+          Top Products
+        </h3>
+        <p className="text-gray-400 mt-1">
+          Highest revenue generating products
+        </p>
+      </div>
+      <div className="h-[420px]">
+        <ResponsiveContainer width="99%" height="100%">
+          <BarChart
+            data={analytics?.topProducts || []}
+            layout="vertical"
+            margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1f2937"
+            />
+            <XAxis
+              type="number"
+              stroke="#9ca3af"
+            />
+            <YAxis
+              type="category"
+              dataKey="product"
+              stroke="#9ca3af"
+              width={220}
+            />
+            <Tooltip />
+            <Bar
+              dataKey="revenue"
+              fill="#3b82f6"
+              radius={[0, 10, 10, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
+{/* AI INSIGHTS */}
+<div className="mt-8">
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
+    <CardContent className="p-6">
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold">
+          AI Business Insights
+        </h3>
+        <p className="text-gray-400 mt-1">
+          Automated ecommerce recommendations
+        </p>
+      </div>
+      <div className="grid gap-4">
+        {(analytics?.aiInsights || []).map(
+          (insight: string, index: number) => (
+            <div
+              key={index}
+              className="
+                bg-white/[0.03]
+                border border-white/5
+                rounded-2xl
+                p-4
+                hover:border-purple-400/20
+                transition-all
+                duration-300
+              "
+            >
+              <p className="text-gray-200">
+                ✨ {insight}
+              </p>
+            </div>
+          )
+        )}
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
 {/* RECENT ORDERS TABLE */}
 <div className="mt-8">
 
-  <Card className="
-  bg-white/[0.03]
-  border-white/5
-  backdrop-blur-2xl
-  text-white
-  transition-all
-  duration-300
-  hover:shadow-[0_0_40px_rgba(168,85,247,0.18)]
-  ">
+  <Card
+    className={`
+      ${cardStyles}
+      backdrop-blur-2xl
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
+      hover:border-emerald-400/20
+    `}
+  >
 
     <CardContent className="p-6">
 
@@ -718,17 +1073,17 @@ export default function Home() {
         <TableHeader>
           <TableRow className="border-white/10">
 
-            <TableHead className="text-gray-200">Customer</TableHead>
-            <TableHead className="text-gray-200">Product</TableHead>
-            <TableHead className="text-gray-200">Amount</TableHead>
-            <TableHead className="text-gray-200">Status</TableHead>
+            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Customer</TableHead>
+            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Product</TableHead>
+            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Amount</TableHead>
+            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Country</TableHead>
 
           </TableRow>
         </TableHeader>
 
         <TableBody>
 
-          {recentOrders.map((order, index) => (
+          {recentOrders.map((order: any, index: number) => (
 
             <TableRow
               key={index}
@@ -738,27 +1093,8 @@ export default function Home() {
               <TableCell>{order.customer}</TableCell>
 
               <TableCell>{order.product}</TableCell>
-
               <TableCell>{order.amount}</TableCell>
-
-              <TableCell>
-
-                <span
-                  className={`
-                    px-3 py-1 rounded-full text-sm
-                    ${
-                      order.status === "Completed"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : order.status === "Pending"
-                        ? "bg-yellow-500/20 text-yellow-400"
-                        : "bg-red-500/20 text-red-400"
-                    }
-                  `}
-                >
-                  {order.status}
-                </span>
-
-              </TableCell>
+              <TableCell>{order.country}</TableCell>
 
             </TableRow>
 
