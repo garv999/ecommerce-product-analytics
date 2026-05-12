@@ -65,6 +65,9 @@ export default function Home() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [analytics, setAnalytics] = useState<any>(null);
+  const [selectedCountry, setSelectedCountry] = useState("All");
+const [searchQuery, setSearchQuery] = useState("");
+const [dateRange, setDateRange] = useState("All");
   const [loading, setLoading] = useState(true);
   const notifications = [
     {
@@ -109,8 +112,37 @@ export default function Home() {
   if (selectedPeriod === "6M") {
     revenueData = fullRevenueData;
   }
+  // const recentOrders =
+  //   analytics?.recentOrders || [];
   const recentOrders =
-    analytics?.recentOrders || [];
+  (analytics?.recentOrders || []).filter(
+    (order: any) => {
+      const matchesSearch =
+        order.product
+          ?.toLowerCase()
+          .includes(
+            searchQuery.toLowerCase()
+          );
+      const matchesCountry =
+        selectedCountry === "All" ||
+        order.country === selectedCountry;
+      return (
+        matchesSearch &&
+        matchesCountry
+      );
+    }
+  );
+  let filteredRevenueData = revenueData;
+  if (dateRange === "Recent") {
+    filteredRevenueData =
+      revenueData.slice(-6);
+  }
+  if (
+    selectedCountry !== "All" &&
+    analytics?.topCountries
+  ) {
+    filteredRevenueData = filteredRevenueData;
+  }
     if (loading) {
       return (
         <div
@@ -380,6 +412,10 @@ export default function Home() {
             <input
               type="text"
               placeholder="Search analytics..."
+              value={searchQuery}
+              onChange={(e) =>
+                setSearchQuery(e.target.value)
+              }
               className={`
                 bg-transparent
                 outline-none
@@ -582,11 +618,61 @@ export default function Home() {
           Data Analyst
         </p>
       </div>
-
     </div>
-
   </div>
+</div>
 
+{/* FILTER BAR */}
+<div className="flex flex-wrap gap-4 mb-8">
+
+  {/* COUNTRY FILTER */}
+  <select
+    value={selectedCountry}
+    onChange={(e) =>
+      setSelectedCountry(e.target.value)
+    }
+    className={`
+      px-4 py-3 rounded-2xl
+      border outline-none
+      text-sm
+      ${inputStyles}
+    `}
+  >
+    <option value="All">
+      All Countries
+    </option>
+    {(analytics?.topCountries || []).map(
+      (country: any, index: number) => (
+        <option
+          key={index}
+          value={country.country}
+        >
+          {country.country}
+        </option>
+      )
+    )}
+  </select>
+
+  {/* DATE FILTER */}
+  <select
+    value={dateRange}
+    onChange={(e) =>
+      setDateRange(e.target.value)
+    }
+    className={`
+      px-4 py-3 rounded-2xl
+      border outline-none
+      text-sm
+      ${inputStyles}
+    `}
+  >
+    <option value="All">
+      Full Timeline
+    </option>
+    <option value="Recent">
+      Recent Months
+    </option>
+  </select>
 </div>
         {/* HEADER */}
         <div className="mb-8">
@@ -843,7 +929,7 @@ export default function Home() {
       <div className="h-[350px]">
         <ResponsiveContainer width="99%" height="100%">
           <LineChart
-            data={revenueData}
+            data={filteredRevenueData}
             margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
@@ -905,7 +991,7 @@ export default function Home() {
       <div className="h-[350px]">
         <ResponsiveContainer width="99%" height="100%">
           <BarChart
-            data={analytics?.topCountries || []}
+            data={selectedCountry === "All"? analytics?.topCountries || []: (analytics?.topCountries || []).filter((country: any) =>country.country === selectedCountry)}
             layout="vertical"
             margin={{ top: 10, right: 20, left: 20, bottom: 0 }}
           >
@@ -962,7 +1048,7 @@ export default function Home() {
       <div className="h-[420px]">
         <ResponsiveContainer width="99%" height="100%">
           <BarChart
-            data={analytics?.topProducts || []}
+            data={(analytics?.topProducts || []).filter((product: any) =>product.product?.toLowerCase().includes(searchQuery.toLowerCase()))}
             layout="vertical"
             margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
           >
