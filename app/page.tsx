@@ -132,10 +132,81 @@ const [dateRange, setDateRange] = useState("All");
       );
     }
   );
-  let filteredRevenueData = revenueData;
+  // let filteredRevenueData = revenueData;
+  const rawData =
+    analytics?.rawData || [];
+
+  let filteredData = rawData;
+
+  // SEARCH FILTER
+  filteredData = filteredData.filter(
+    (row: any) =>
+      row.Description
+        ?.toLowerCase()
+        .includes(
+          searchQuery.toLowerCase()
+        )
+  );
+
+  // COUNTRY FILTER
+  if (selectedCountry !== "All") {
+    filteredData = filteredData.filter(
+      (row: any) =>
+        row.Country === selectedCountry
+    );
+  }
+
+  // DATE FILTER
   if (dateRange === "Recent") {
-    filteredRevenueData =
-      revenueData.slice(-6);
+    filteredData = filteredData.slice(-500);
+  }
+  const filteredRevenue =
+    filteredData.reduce(
+      (sum: number, row: any) =>
+        sum + Number(row.Revenue || 0),
+      0
+    );
+
+  const filteredOrders =
+    new Set(
+      filteredData.map(
+        (row: any) => row.Invoice
+      )
+    ).size;
+
+  const filteredCustomers =
+    new Set(
+      filteredData.map(
+        (row: any) => row["Customer ID"]
+      )
+    ).size;
+  const revenueMap: Record<string, number> =
+    {};
+
+  filteredData.forEach((row: any) => {
+
+    const month = row.YearMonth;
+
+    if (!month) return;
+
+    if (!revenueMap[month]) {
+      revenueMap[month] = 0;
+    }
+
+    revenueMap[month] += Number(
+      row.Revenue || 0
+    );
+  });
+
+  let filteredRevenueData =
+    Object.entries(revenueMap).map(
+      ([month, revenue]) => ({
+        month,
+        revenue,
+      })
+    );
+  if (dateRange === "Recent") {
+    filteredRevenueData = revenueData.slice(-6);
   }
   if (
     selectedCountry !== "All" &&
@@ -701,7 +772,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Revenue</p>
-              <h3 className="text-3xl font-bold mt-2">₹{analytics? (analytics.totalRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
+              <h3 className="text-3xl font-bold mt-2">₹{analytics? (filteredRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
             </CardContent>
           </Card>
 
@@ -718,7 +789,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Orders</p>
-              <h3 className="text-3xl font-bold mt-2">{analytics?.totalOrders?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{filteredOrders?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -735,7 +806,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Customers</p>
-              <h3 className="text-3xl font-bold mt-2">{analytics?.totalCustomers?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{filteredCustomers?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
