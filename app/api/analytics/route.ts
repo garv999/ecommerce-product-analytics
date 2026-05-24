@@ -156,6 +156,7 @@ export async function GET() {
         revenueChartData,
         topCountries,
         topProducts,
+        rawData: data,
         aiInsights,
         recentOrders,
     });

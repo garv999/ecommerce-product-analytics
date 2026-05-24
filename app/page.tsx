@@ -100,20 +100,7 @@ const [dateRange, setDateRange] = useState("All");
     };
     fetchAnalytics();
   }, []);
-  const fullRevenueData =
-    analytics?.revenueChartData || [];
-  let revenueData = [];
-  if (selectedPeriod === "7D") {
-    revenueData = fullRevenueData.slice(-7);
-  }
-  if (selectedPeriod === "30D") {
-    revenueData = fullRevenueData.slice(-12);
-  }
-  if (selectedPeriod === "6M") {
-    revenueData = fullRevenueData;
-  }
-  // const recentOrders =
-  //   analytics?.recentOrders || [];
+
   const recentOrders =
   (analytics?.recentOrders || []).filter(
     (order: any) => {
@@ -132,17 +119,79 @@ const [dateRange, setDateRange] = useState("All");
       );
     }
   );
-  let filteredRevenueData = revenueData;
-  if (dateRange === "Recent") {
-    filteredRevenueData =
-      revenueData.slice(-6);
+  const rawData =
+  analytics?.rawData || [];
+let filteredData = rawData;
+// SEARCH FILTER
+filteredData = filteredData.filter(
+  (row: any) =>
+    row.Description
+      ?.toLowerCase()
+      .includes(
+        searchQuery.toLowerCase()
+      )
+);
+// COUNTRY FILTER
+if (selectedCountry !== "All") {
+  filteredData = filteredData.filter(
+    (row: any) =>
+      row.Country === selectedCountry
+  );
+}
+// DATE FILTER
+if (dateRange === "Recent") {
+  filteredData = filteredData.slice(-500);
+}
+const filteredRevenue =
+  filteredData.reduce(
+    (sum: number, row: any) =>
+      sum + Number(row.Revenue || 0),
+    0
+  );
+const filteredOrders =
+  new Set(
+    filteredData.map(
+      (row: any) => row.Invoice
+    )
+  ).size;
+const filteredCustomers =
+  new Set(
+    filteredData.map(
+      (row: any) => row["Customer ID"]
+    )
+  ).size;
+  const revenueMap: Record<string, number> =
+  {};
+filteredData.forEach((row: any) => {
+  const month = row.YearMonth;
+  if (!month) return;
+  if (!revenueMap[month]) {
+    revenueMap[month] = 0;
   }
-  if (
-    selectedCountry !== "All" &&
-    analytics?.topCountries
-  ) {
-    filteredRevenueData = filteredRevenueData;
-  }
+  revenueMap[month] += Number(
+    row.Revenue || 0
+  );
+});
+const filteredRevenueData =
+  Object.entries(revenueMap).map(
+    ([month, revenue]) => ({
+      month,
+      revenue,
+    })
+  );
+  let chartData = filteredRevenueData;
+if (selectedPeriod === "7D") {
+  chartData =
+    filteredRevenueData.slice(-7);
+}
+if (selectedPeriod === "30D") {
+  chartData =
+    filteredRevenueData.slice(-12);
+}
+if (selectedPeriod === "6M") {
+  chartData =
+    filteredRevenueData;
+}
     if (loading) {
       return (
         <div
@@ -701,7 +750,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Revenue</p>
-              <h3 className="text-3xl font-bold mt-2">₹{analytics? (analytics.totalRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
+              <h3 className="text-3xl font-bold mt-2">₹{analytics? (filteredRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
             </CardContent>
           </Card>
 
@@ -718,7 +767,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Orders</p>
-              <h3 className="text-3xl font-bold mt-2">{analytics?.totalOrders?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{filteredOrders?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -735,7 +784,7 @@ const [dateRange, setDateRange] = useState("All");
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Customers</p>
-              <h3 className="text-3xl font-bold mt-2">{analytics?.totalCustomers?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{filteredCustomers?.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -929,7 +978,7 @@ const [dateRange, setDateRange] = useState("All");
       <div className="h-[350px]">
         <ResponsiveContainer width="99%" height="100%">
           <LineChart
-            data={filteredRevenueData}
+            data={chartData}
             margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
