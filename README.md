@@ -1,114 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Commerce Analytics Dashboard
 
-## Getting Started
+AI-powered ecommerce analytics dashboard built using **Next.js, TypeScript, Tailwind CSS, Recharts, and CSV-based analytics APIs**.
+The platform transforms raw ecommerce transaction data into interactive business insights including:
 
-First, run the development server:
+- Revenue analytics
+- Customer intelligence
+- Product performance
+- Country-wise revenue analysis
+- AI-generated business insights
+- Interactive filters & visualizations
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🌐 Live Demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🚀 Next.js Dashboard (Vercel)
+Coming Soon
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 Previous Streamlit Dashboard
+https://ecommerce-analytics-garv999.streamlit.app/
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📈 Interactive Analytics Dashboard
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Real-time KPI cards
+- Dynamic revenue charts
+- Top countries analysis
+- Top products analysis
+- AI business insights
+- Recent orders tracking
 
-## Deploy on Vercel
+### 🎨 Modern SaaS UI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Fully responsive layout
+- Dark / Light mode
+- Animated premium UI
+- Glassmorphism design
+- Sidebar navigation
+- Interactive notifications
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🔍 Smart Filtering
 
-# E-Commerce Product Analytics & Customer Behavior Analysis
+- Search products dynamically
+- Filter by country
+- Filter by timeline
+- 7D / 30D / 6M revenue views
 
-## 🌐 Live Dashboard
+### ⚡ Dynamic Data Processing
 
-👉 **[Click here to explore the interactive dashboard](https://ecommerce-analytics-garv999.streamlit.app/)**  
+- CSV-driven analytics engine
+- API-based architecture
+- Revenue aggregation
+- Customer segmentation
+- Product revenue ranking
 
-![Dashboard Preview](outputs/figures/dashboard.png)
-## 🎯 Business Context
+---
 
-As a Product/Data Analyst at an e-commerce company, this project aims to answer core growth and retention questions:
+# 🛠️ Tech Stack
 
-- Why are customers churning?
-- What drives revenue growth?
-- Which products generate repeat purchases?
-- What is Customer Lifetime Value (CLV)?
-- How can retention be improved?
+## Frontend
 
-## 📦 Dataset
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Recharts
+- Lucide Icons
 
-**Source:** Online Retail II Dataset (UCI Machine Learning Repository)
+## Backend / Data Layer
 
-**Primary fields:**
+- Next.js API Routes
+- PapaParse
+- CSV Processing
+- Node.js FS module
 
-- `InvoiceNo`
-- `CustomerID`
-- `Quantity`
-- `UnitPrice`
-- `InvoiceDate`
-- `Country`
+## Data Science Stack
 
-## 🧰 Tech Stack
-
-- Python (`pandas`, `numpy`)
-- Data visualization (`matplotlib`, `seaborn`)
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
 - SQL
 - Jupyter Notebook
-- Git/GitHub
 
-## 📊 Analysis Scope
+---
 
-The project is organized around five analysis tracks:
+# 📂 Project Structure
 
-1. Revenue Analysis
-2. Customer Segmentation (RFM)
-3. Cohort Retention Analysis
-4. Customer Lifetime Value (CLV)
-5. Business Recommendations
-
-## 📁 Project Structure
-
-```text
+```bash
 ecommerce-product-analytics/
-├── README.md
-├── requirements.txt
-├── .gitignore
-
-├── .streamlit/
-│   └── config.toml
-
+│
+├── app/
+│   ├── api/
+│   │   └── analytics/
+│   │       └── route.ts
+│   │
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   └── ui/
+│
 ├── dashboard/
 │   ├── app.py
-│   └── pages/
-│       ├── 1_Product_Analysis.py
-│       ├── 2_Customer_Analysis.py
-│       └── 3_Churn_Analysis.py
-├── ├──styles/
-│       ├──style.css
-
+│   ├── pages/
+│   └── styles/
+│
 ├── data/
-│   ├── raw/
-│   │   └── online_retail.csv
 │   └── processed/
 │       └── cleaned_online_retail.csv
-
+│
+├── lib/
+│
 ├── notebooks/
 │   ├── 01_data_inspection.ipynb
 │   ├── 02_rfm_segmentation.ipynb
@@ -116,78 +125,210 @@ ecommerce-product-analytics/
 │   ├── 04_CLV.ipynb
 │   ├── 05_product_analysis.ipynb
 │   └── 06_churn_analysis.ipynb
-
+│
 ├── outputs/
 │   ├── figures/
-│   │   ├── monthly_revenue_trend.png
-│   │   ├── top_countries_revenue.png
-│   │   ├── rfm_customer_segments.png
+│   │   ├── churn_status.png
 │   │   ├── cohort_retention_heatmap.png
-│   │   ├── top_products_revenue.png
+│   │   ├── dashboard.png
+│   │   ├── monthly_revenue_trend.png
+│   │   ├── repeat_products.png
+│   │   ├── rfm_customer_segments.png
+│   │   ├── top_countries_revenue.png
 │   │   ├── top_products_quantity.png
-│   │   └── repeat_products.png
-│
+│   │   └── top_products_revenue.png
+│   │
 │   └── reports/
 │       └── insights.md
-
+│
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+│
 ├── sql/
 │   └── analysis_queries.sql
-
+│
 ├── src/
 │   └── utils.py
+│
+├── .env
+├── .gitignore
+├── AGENTS.md
+├── CLAUDE.md
+├── components.json
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── README.md
+└── requirements.txt
 ```
 
-## ✅ Expected Outcomes
+---
 
-- Clear view of sales and revenue patterns
-- Customer segments based on purchase behavior
-- Retention trends by customer cohort
-- Practical CLV framework for prioritization
-- Actionable recommendations to improve retention and growth
+# 📊 Dashboard Modules
 
-## Expected Outcomes
+## 1️⃣ Revenue Analytics
 
-- Clear view of sales and revenue patterns
-- Customer segments based on purchase behavior
-- Retention trends by customer cohort
-- Practical CLV framework for prioritization
-- Actionable recommendations to improve retention and growth
-- Identification of top-performing products and repeat purchase drivers
+- Revenue trends over time
+- Dynamic chart filtering
+- KPI tracking
+- Revenue growth insights
 
-## 📊 Sample Visualizations
+## 2️⃣ Product Analytics
 
-### Monthly Revenue Trend
+- Top revenue-generating products
+- Product search functionality
+- Product performance comparison
 
-![Monthly Revenue](outputs/figures/monthly_revenue_trend.png)
+## 3️⃣ Customer Analytics
 
-### Top Countries by Revenue
+- Total customers
+- Customer behavior insights
+- Geographic customer distribution
 
-![Country Revenue](outputs/figures/top_countries_revenue.png)
+## 4️⃣ AI Insights Engine
 
-### Customer Segmentation (RFM)
+Automatically generated insights such as:
 
-![RFM Segments](outputs/figures/rfm_customer_segments.png)
+- Top-performing countries
+- Best-selling products
+- Average order value
+- Customer growth observations
 
-### Cohort Retention Heatmap
+---
 
-![Cohort Retention](outputs/figures/cohort_retention_heatmap.png)
+# 📈 Visualizations Included
 
-### Top Products by Revenue
+- Revenue Trend Line Chart
+- Top Countries Bar Chart
+- Top Products Chart
+- KPI Analytics Cards
+- Interactive Tables
 
-![Top Products Revenue](outputs/figures/top_products_revenue.png)
+---
 
-### Most Purchased Products
+# 📦 Dataset
 
-![Top Products Quantity](outputs/figures/top_products_quantity.png)
+## Source
+Online Retail Dataset — UCI Machine Learning Repository
 
-### Repeat Purchase Products
+## Main Fields
 
-![Repeat Products](outputs/figures/repeat_products.png)
+- Invoice
+- Customer ID
+- Description
+- Quantity
+- Revenue
+- Country
+- YearMonth
 
-### Customer Churn Status
+---
 
-![Churn Status](outputs/figures/churn_status.png)
+# 🚀 Getting Started
 
-## 📊 Streamlit Dashboard
+## Clone Repository
 
-![Dashboard](outputs/figures/dashboard.png)
+```bash
+git clone https://github.com/garv999/ecommerce-product-analytics.git
+```
+
+## Navigate Into Project
+
+```bash
+cd ecommerce-product-analytics
+```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Run Development Server
+
+```bash
+npm run dev
+```
+
+Open:
+
+```bash
+http://localhost:3000
+```
+
+---
+
+# 📡 API Endpoint
+
+Analytics data is served through:
+
+```bash
+/api/analytics
+```
+
+The API dynamically processes CSV data and returns:
+
+- Revenue metrics
+- Orders
+- Customers
+- Chart datasets
+- AI insights
+- Product analytics
+- Country analytics
+
+---
+
+# 🌙 UI Features
+
+- Dark / Light mode
+- Responsive sidebar
+- Interactive charts
+- Animated hover effects
+- Glassmorphism cards
+- Notification dropdowns
+
+---
+
+# 📌 Future Improvements
+
+- Authentication system
+- Real-time database integration
+- Machine learning forecasting
+- Customer churn prediction
+- Export reports as PDF
+- Advanced cohort analysis
+- Role-based dashboards
+
+---
+
+# 👨‍💻 Author
+
+## Garv Agarwal
+
+Final Year B.Tech CSE (Data Science) Student
+
+Passionate about:
+- Data Analytics
+- AI Products
+- SaaS Platforms
+- Generative AI
+- Full Stack Development
+
+GitHub:
+https://github.com/garv999
+
+---
+
+# ⭐ Project Highlights
+
+✅ Premium SaaS Dashboard  
+✅ Real CSV-driven analytics  
+✅ Next.js + TypeScript architecture  
+✅ Responsive UI  
+✅ Vercel deployment ready  
+✅ AI-powered ecommerce insights
