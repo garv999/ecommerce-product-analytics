@@ -179,6 +179,74 @@ const filteredRevenueData =
       revenue,
     })
   );
+const topFilteredProducts =
+  Object.entries(
+    filteredData.reduce(
+      (
+        acc: Record<string, number>,
+        row: any
+      ) => {
+        const product =
+          row.Description || "Unknown";
+        if (!acc[product]) {
+          acc[product] = 0;
+        }
+        acc[product] += Number(
+          row.Revenue || 0
+        );
+        return acc;
+      },
+      {}
+    )
+  )
+    .map(([product, revenue]) => ({
+      product:
+        product.length > 28
+          ? product.slice(0, 28) + "..."
+          : product,
+      revenue,
+    }))
+    .sort(
+      (a: any, b: any) =>
+        b.revenue - a.revenue
+    )
+    .slice(0, 10);
+const topCustomers =
+  Object.entries(
+    filteredData.reduce(
+      (
+        acc: Record<string, number>,
+        row: any
+      ) => {
+        const customer =
+          row["Customer ID"] || "Unknown";
+        if (!acc[customer]) {
+          acc[customer] = 0;
+        }
+        acc[customer] += Number(
+          row.Revenue || 0
+        );
+        return acc;
+      },
+      {}
+    )
+  )
+    .map(([customer, revenue]) => ({
+      customer,
+      revenue,
+    }))
+    .sort(
+      (a: any, b: any) =>
+        b.revenue - a.revenue
+    )
+    .slice(0, 10);
+const monthlyRevenueStats =
+  filteredRevenueData.map(
+    (item: any) => ({
+      month: item.month,
+      revenue: item.revenue,
+    })
+  );
   let chartData = filteredRevenueData;
 if (selectedPeriod === "7D") {
   chartData =
@@ -723,6 +791,8 @@ if (selectedPeriod === "6M") {
     </option>
   </select>
 </div>
+{activeSidebar === "Dashboard" && (
+  <>
         {/* HEADER */}
         <div className="mb-8">
           <h2 className="text-4xl font-bold">
@@ -1178,7 +1248,6 @@ if (selectedPeriod === "6M") {
 
 {/* RECENT ORDERS TABLE */}
 <div className="mt-8">
-
   <Card
     className={`
       ${cardStyles}
@@ -1190,61 +1259,214 @@ if (selectedPeriod === "6M") {
       hover:border-emerald-400/20
     `}
   >
-
     <CardContent className="p-6">
-
       <div className="mb-6">
         <h3 className="text-2xl font-bold">
           Recent Orders
         </h3>
-
         <p className="text-gray-400 mt-1">
           Latest ecommerce transactions
         </p>
       </div>
-
       <Table>
-
         <TableHeader>
           <TableRow className="border-white/10">
-
             <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Customer</TableHead>
             <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Product</TableHead>
             <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Amount</TableHead>
             <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Country</TableHead>
-
           </TableRow>
         </TableHeader>
-
         <TableBody>
-
           {recentOrders.map((order: any, index: number) => (
-
             <TableRow
               key={index}
               className="border-white/5"
             >
-
               <TableCell>{order.customer}</TableCell>
-
               <TableCell>{order.product}</TableCell>
               <TableCell>{order.amount}</TableCell>
               <TableCell>{order.country}</TableCell>
-
             </TableRow>
-
           ))}
-
         </TableBody>
-
       </Table>
-
     </CardContent>
-
   </Card>
-
 </div>
+  </>
+)}
 
+{/* PRODUCTS PAGE */}
+{activeSidebar === "Products" && (
+  <div className="space-y-8">
+    <div>
+      <h2 className="text-4xl font-bold">
+        Product Analytics
+      </h2>
+      <p className={`${secondaryText} mt-2`}>
+        Revenue insights by products
+      </p>
+    </div>
+    <Card
+      className={`
+        ${cardStyles}
+        backdrop-blur-2xl
+        p-6
+      `}
+    >
+      <div className="h-[500px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+          <BarChart
+            data={topFilteredProducts}
+            layout="vertical"
+            margin={{
+              top: 10,
+              right: 20,
+              left: 40,
+              bottom: 0,
+            }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1f2937"
+            />
+            <XAxis
+              type="number"
+              stroke="#9ca3af"
+            />
+            <YAxis
+              type="category"
+              dataKey="product"
+              stroke="#9ca3af"
+              width={220}
+            />
+            <Tooltip />
+            <Bar
+              dataKey="revenue"
+              fill="#3b82f6"
+              radius={[0, 10, 10, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  </div>
+)}
+
+{/* CUSTOMERS PAGE */}
+{activeSidebar === "Customers" && (
+  <div className="space-y-8">
+    <div>
+      <h2 className="text-4xl font-bold">
+        Customer Analytics
+      </h2>
+      <p className={`${secondaryText} mt-2`}>
+        Top customer revenue insights
+      </p>
+    </div>
+    <Card
+      className={`
+        ${cardStyles}
+        backdrop-blur-2xl
+        p-6
+      `}
+    >
+      <div className="h-[500px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+          <BarChart
+            data={topCustomers}
+            layout="vertical"
+            margin={{
+              top: 10,
+              right: 20,
+              left: 40,
+              bottom: 0,
+            }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1f2937"
+            />
+            <XAxis
+              type="number"
+              stroke="#9ca3af"
+            />
+            <YAxis
+              type="category"
+              dataKey="customer"
+              stroke="#9ca3af"
+              width={120}
+            />
+            <Tooltip />
+            <Bar
+              dataKey="revenue"
+              fill="#10b981"
+              radius={[0, 10, 10, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  </div>
+)}
+
+{/* REVENUE PAGE */}
+{activeSidebar === "Revenue" && (
+  <div className="space-y-8">
+    <div>
+      <h2 className="text-4xl font-bold">
+        Revenue Analytics
+      </h2>
+      <p className={`${secondaryText} mt-2`}>
+        Monthly revenue trends
+      </p>
+    </div>
+    <Card
+      className={`
+        ${cardStyles}
+        backdrop-blur-2xl
+        p-6
+      `}
+    >
+      <div className="h-[500px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+          <LineChart
+            data={monthlyRevenueStats}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#1f2937"
+            />
+            <XAxis
+              dataKey="month"
+              stroke="#9ca3af"
+            />
+            <YAxis
+              stroke="#9ca3af"
+            />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              stroke="#06b6d4"
+              strokeWidth={4}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  </div>
+)}
       </section>
     </main>
   );
