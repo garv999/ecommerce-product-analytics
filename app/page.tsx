@@ -86,6 +86,21 @@ export default function Home() {
     },
   ];
   useEffect(() => {
+  const savedTheme =
+    localStorage.getItem("theme");
+  if (savedTheme) {
+    setDarkMode(
+      savedTheme === "dark"
+    );
+  }
+}, []);
+  useEffect(() => {
+  localStorage.setItem(
+    "theme",
+    darkMode ? "dark" : "light"
+  );
+}, [darkMode]);
+  useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         const response = await fetch("/api/analytics");
