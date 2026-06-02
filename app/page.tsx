@@ -481,27 +481,128 @@ if (selectedPeriod === "6M") {
         overflow-x-hidden
       ">
 
-        {/* MOBILE MENU BUTTON */}
-        <div className="md:hidden mb-4">
-
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="
-              p-3 rounded-xl
-              bg-[#111111]
-              border border-white/10
-            "
-          >
-
-            {mobileMenuOpen ? (
-              <X size={20} />
-            ) : (
-              <Menu size={20} />
-            )}
-
-          </button>
-
-        </div>
+      {/* MOBILE MENU BUTTON */}
+      <div className="md:hidden mb-4">
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="
+            p-3 rounded-xl
+            bg-[#111111]
+            border border-white/10
+          "
+        >
+          {mobileMenuOpen ? (
+            <X size={20} />
+          ) : (
+            <Menu size={20} />
+          )}
+        </button>
+      </div>
+      {/* MOBILE SIDEBAR */}
+{mobileMenuOpen && (
+  <div
+    className="
+      fixed
+      inset-0
+      z-50
+      md:hidden
+    "
+  >
+    {/* BACKDROP */}
+    <div
+      className="
+        absolute
+        inset-0
+        bg-black/60
+        backdrop-blur-sm
+      "
+      onClick={() =>
+        setMobileMenuOpen(false)
+      }
+    />
+    {/* DRAWER */}
+    <div
+      className={`
+        absolute
+        left-0
+        top-0
+        h-full
+        w-72
+        p-6
+        transition-all
+        duration-300
+        ${
+          darkMode
+            ? "bg-[#050505]"
+            : "bg-white"
+        }
+      `}
+    >
+      <div className="
+        flex
+        items-center
+        justify-between
+        mb-10
+      ">
+        <h2 className="
+          text-xl
+          font-bold
+          text-emerald-400
+        ">
+          EcommerceAI
+        </h2>
+        <button
+          onClick={() =>
+            setMobileMenuOpen(false)
+          }
+        >
+          <X size={20} />
+        </button>
+      </div>
+      <nav className="space-y-3">
+        {sidebarItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={item.title}
+              onClick={() => {
+                setActiveSidebar(
+                  item.title
+                );
+                setMobileMenuOpen(
+                  false
+                );
+              }}
+              className={`
+                flex items-center
+                gap-3
+                px-4 py-3
+                rounded-2xl
+                cursor-pointer
+                transition-all
+                ${
+                  activeSidebar === item.title
+                    ? `
+                      bg-emerald-500/10
+                      text-emerald-400
+                    `
+                    : `
+                      text-gray-400
+                    `
+                }
+              `}
+            >
+              <Icon size={20} />
+              <span>
+                {item.title}
+              </span>
+            </div>
+          );
+        })}
+      </nav>
+    </div>
+  </div>
+)}
         {/* TOP NAVBAR */}
         <div className="
         flex
