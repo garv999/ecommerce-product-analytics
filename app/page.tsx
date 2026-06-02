@@ -36,6 +36,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  ChevronDown,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -63,12 +64,13 @@ export default function Home() {
   const [selectedPeriod, setSelectedPeriod] = useState("6M");
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
   const [showNotifications, setShowNotifications] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState<boolean>(true);
   const [analytics, setAnalytics] = useState<any>(null);
   const [selectedCountry, setSelectedCountry] = useState("All");
-const [searchQuery, setSearchQuery] = useState("");
-const [dateRange, setDateRange] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateRange, setDateRange] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const notifications = [
     {
       title: "Revenue increased by 12%",
@@ -120,7 +122,7 @@ const [dateRange, setDateRange] = useState("All");
     }
   );
   const rawData =
-  analytics?.rawData || [];
+analytics?.rawData || [];
 let filteredData = rawData;
 // SEARCH FILTER
 filteredData = filteredData.filter(
@@ -723,7 +725,6 @@ if (selectedPeriod === "6M") {
 
       {/* DROPDOWN */}
       {showNotifications && (
-
         <div
           className={`
             absolute
@@ -747,22 +748,16 @@ if (selectedPeriod === "6M") {
             }
           `}
         >
-
           <div className="
             p-5 border-b border-white/5
           ">
-
             <h3 className="font-semibold text-lg">
               Notifications
             </h3>
-
           </div>
-
           <div className="p-3 space-y-2">
-
             {notifications.map(
               (notification, index) => (
-
                 <div
                   key={index}
                   className={`
@@ -776,7 +771,6 @@ if (selectedPeriod === "6M") {
                     }
                   `}
                 >
-
                   <p
                     className={`
                       text-sm
@@ -785,59 +779,130 @@ if (selectedPeriod === "6M") {
                   >
                     {notification.title}
                   </p>
-
                   <p className="
                     text-xs text-gray-400 mt-1
                   ">
                     {notification.time}
                   </p>
-
                 </div>
-
               )
             )}
-
           </div>
-
         </div>
-
       )}
-
+    </div>
     </div>
 
     {/* PROFILE */}
-    <div
-      className={`
-        flex items-center gap-3
-        rounded-2xl
-        px-3 py-2
-        border
-        ${inputStyles}
-      `}
-    >
-
-      <div className="
-        w-10 h-10
-        rounded-full
-        bg-emerald-500
-        flex items-center justify-center
-        text-black
-        font-bold
-      ">
-        G
-      </div>
-
-      <div className="hidden md:block">
+<div className="relative">
+  <div
+    onClick={() =>
+      setShowProfileMenu(
+        !showProfileMenu
+      )
+    }
+    className={`
+      flex items-center gap-3
+      rounded-2xl
+      px-3 py-2
+      border
+      cursor-pointer
+      ${inputStyles}
+    `}
+  >
+    <div className="
+      w-10 h-10
+      rounded-full
+      bg-emerald-500
+      flex items-center justify-center
+      text-black
+      font-bold
+    ">
+      G
+    </div>
+    <div className="hidden md:block">
+      <div className="flex items-center gap-1">
         <p className="text-sm font-medium">
           Garv Agarwal
         </p>
-
-        <p className="text-xs text-gray-400">
-          Data Analyst
-        </p>
+        <ChevronDown size={14} />
       </div>
+      <p className="text-xs text-gray-400">
+        Data Analyst
+      </p>
     </div>
   </div>
+  {showProfileMenu && (
+    <div
+      className={`
+        absolute
+        right-0
+        mt-3
+        w-60
+        rounded-3xl
+        border
+        overflow-hidden
+        z-50
+        backdrop-blur-2xl
+        shadow-[0_0_40px_rgba(0,0,0,0.3)]
+        ${
+          darkMode
+            ? "bg-black/90 border-white/10"
+            : "bg-white border-black/5"
+        }
+      `}
+    >
+      <button
+        className="
+          w-full
+          text-left
+          px-5 py-4
+          hover:bg-emerald-500/10
+          transition
+        "
+      >
+        My Profile
+      </button>
+      <button
+        className="
+          w-full
+          text-left
+          px-5 py-4
+          hover:bg-emerald-500/10
+          transition
+        "
+      >
+        Settings
+      </button>
+      <button
+        onClick={() =>
+          setDarkMode(!darkMode)
+        }
+        className="
+          w-full
+          text-left
+          px-5 py-4
+          hover:bg-emerald-500/10
+          transition
+        "
+      >
+        Toggle Theme
+      </button>
+      <button
+        className="
+          w-full
+          text-left
+          px-5 py-4
+          text-red-400
+          hover:bg-red-500/10
+          transition
+        "
+      >
+        Logout
+      </button>
+    </div>
+  )}
+</div>
 </div>
 
 {/* FILTER BAR */}
