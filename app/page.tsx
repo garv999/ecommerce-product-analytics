@@ -37,6 +37,7 @@ import {
   Sun,
   Moon,
   ChevronDown,
+  Download,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -159,6 +160,49 @@ if (selectedCountry !== "All") {
 if (dateRange === "Recent") {
   filteredData = filteredData.slice(-500);
 }
+const exportCSV = () => {
+  const headers = [
+    "Invoice",
+    "Customer ID",
+    "Description",
+    "Country",
+    "Revenue",
+    "YearMonth",
+  ];
+  const rows = filteredData.map(
+    (row: any) => [
+      row.Invoice,
+      row["Customer ID"],
+      row.Description,
+      row.Country,
+      row.Revenue,
+      row.YearMonth,
+    ]
+  );
+  const csvContent = [
+    headers.join(","),
+    ...rows.map(
+      (e: (string | number)[]) =>
+        e.join(",")
+    ),
+  ].join("\n");
+  const blob = new Blob(
+    [csvContent],
+    {
+      type: "text/csv;charset=utf-8;",
+    }
+  );
+  const url =
+    URL.createObjectURL(blob);
+  const link =
+    document.createElement("a");
+  link.href = url;
+  link.download =
+    "analytics_export.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 const filteredRevenue =
   filteredData.reduce(
     (sum: number, row: any) =>
@@ -919,7 +963,6 @@ if (selectedPeriod === "6M") {
   )}
 </div>
 </div>
-
 {/* FILTER BAR */}
 <div className="flex flex-wrap gap-4 mb-8">
 
@@ -971,6 +1014,24 @@ if (selectedPeriod === "6M") {
       Recent Months
     </option>
   </select>
+
+  {/* EXPORT CSV BUTTON */}
+  <button
+    onClick={exportCSV}
+    className="
+      flex items-center gap-2
+      px-5 py-3
+      rounded-2xl
+      bg-emerald-500
+      text-black
+      font-medium
+      hover:scale-105
+      transition-all
+    "
+  >
+    <Download size={18} />
+    Export CSV
+  </button>
 </div>
 {activeSidebar === "Dashboard" && (
   <>
