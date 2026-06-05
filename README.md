@@ -43,8 +43,7 @@ The repository also includes the complete analytics pipeline used to clean, tran
 
 ### Next.js Dashboard
 
-Deployment to Vercel is currently in progress.
-The application has been production-tested with optimized builds and is ready for deployment.
+[Vercel](https://ecommerce-product-analytics.vercel.app)
 
 ### Previous Streamlit Prototype
 
