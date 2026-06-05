@@ -1,4 +1,4 @@
-# Ecommerce SaaS Dashboard
+# 🚀 Ecommerce Product Analytics SaaS Dashboard
 
 
 <p align="center">
@@ -41,9 +41,7 @@ The repository also includes the complete analytics pipeline used to clean, tran
 
 ## Live Demo
 
-### Next.js Dashboard
-
-### 🚀 Live Dashboard
+### 🌐 Live Dashboard
 
 [Vercel](https://ecommerce-product-analytics.vercel.app)
 
@@ -54,12 +52,6 @@ Experience the fully interactive production deployment built with Next.js and Ty
 [Streamlit Prototype](https://ecommerce-analytics-garv999.streamlit.app/)
 
 Original proof-of-concept version before migration to the modern SaaS architecture.
-
----
-
-## Dashboard Preview
-
-Dashboard screenshots will be added after public deployment.
 
 ---
 
@@ -284,7 +276,7 @@ Provides an interactive analytics experience with:
 - Revenue visualization
 - Product & customer analytics
 - Geographic insights
-- AI-generated business recommendations
+- Intelligent business insights engine
 
 Built using:
 
