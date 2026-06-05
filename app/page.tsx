@@ -425,7 +425,7 @@ if (selectedPeriod === "6M") {
   }
   const cardStyles = darkMode
     ? `
-        bg-white/[0.03]
+        bg-white/[0.04]
         border-white/5
         text-white
       `
@@ -443,7 +443,7 @@ if (selectedPeriod === "6M") {
 
   const inputStyles = darkMode
     ? `
-      bg-white/[0.03]
+      bg-white/[0.04]
       border-white/5
       text-white
     `
@@ -810,7 +810,7 @@ if (selectedPeriod === "6M") {
       ${
         darkMode
           ? `
-            bg-white/[0.03]
+            bg-white/[0.04]
             border-white/5
             hover:border-yellow-400/30
             hover:shadow-[0_0_25px_rgba(250,204,21,0.15)]
@@ -910,8 +910,8 @@ if (selectedPeriod === "6M") {
                     cursor-pointer
                     ${
                       darkMode
-                        ? "bg-white/[0.03] hover:bg-white/[0.05]"
-                        : "bg-black/[0.03] hover:bg-black/[0.05]"
+                        ? "bg-white/[0.04] hover:bg-white/[0.06]"
+                        : "bg-black/[0.04] hover:bg-black/[0.06]"
                     }
                   `}
                 >
@@ -972,7 +972,7 @@ if (selectedPeriod === "6M") {
         <ChevronDown size={14} />
       </div>
       <p className="text-xs text-gray-400">
-        Data Analyst
+        AI & Data Engineer
       </p>
     </div>
   </div>
@@ -1125,7 +1125,7 @@ if (selectedPeriod === "6M") {
   <>
         {/* HEADER */}
         <div className="mb-8">
-          <h2 className="text-4xl font-bold">
+          <h2 className="text-5xl font-bold tracking-tight">
             Ecommerce Analytics Dashboard
           </h2>
 
@@ -1565,7 +1565,7 @@ if (selectedPeriod === "6M") {
             <div
               key={index}
               className="
-                bg-white/[0.03]
+                bg-white/[0.04]
                 border border-white/5
                 rounded-2xl
                 p-4
