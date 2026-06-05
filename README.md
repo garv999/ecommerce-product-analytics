@@ -43,7 +43,10 @@ The repository also includes the complete analytics pipeline used to clean, tran
 
 ### Next.js Dashboard
 
-[Vercel](https://ecommerce-product-analytics.vercel.app)
+### 🚀 Live Dashboard
+
+[Vercel]https://ecommerce-product-analytics.vercel.app
+Experience the fully interactive production deployment built with Next.js and TypeScript.
 
 ### Previous Streamlit Prototype
 
