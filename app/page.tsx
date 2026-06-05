@@ -308,6 +308,41 @@ const monthlyRevenueStats =
       revenue: item.revenue,
     })
   );
+const currentMonthRevenue =
+  filteredRevenueData.length > 0
+    ? Number(
+        filteredRevenueData[
+          filteredRevenueData.length - 1
+        ].revenue
+      )
+    : 0;
+const previousMonthRevenue =
+  filteredRevenueData.length > 1
+    ? Number(
+        filteredRevenueData[
+          filteredRevenueData.length - 2
+        ].revenue
+      )
+    : 0;
+const revenueGrowth =
+  previousMonthRevenue > 0
+    ? (
+        ((currentMonthRevenue -
+          previousMonthRevenue) /
+          previousMonthRevenue) *
+        100
+      ).toFixed(1)
+    : "0.0";
+const activeUsers =
+  filteredCustomers;
+const conversionRate =
+  filteredCustomers > 0
+    ? (
+        (filteredOrders /
+          filteredCustomers) *
+        100
+      ).toFixed(1)
+    : "0.0";
   let chartData = filteredRevenueData;
 if (selectedPeriod === "7D") {
   chartData =
@@ -334,7 +369,19 @@ if (selectedPeriod === "6M") {
           text-2xl
         "
       >
-        Loading Analytics...
+        <div className="flex flex-col items-center gap-4">
+          <div className="
+            w-12 h-12
+            border-4
+            border-white
+            border-t-transparent
+            rounded-full
+            animate-spin
+          " />
+          <p className="text-gray-300">
+            Loading Analytics...
+          </p>
+        </div>
       </div>
     );
   }
@@ -1018,6 +1065,7 @@ if (selectedPeriod === "6M") {
   {/* EXPORT CSV BUTTON */}
   <button
     onClick={exportCSV}
+    disabled={filteredData.length === 0}
     className="
       flex items-center gap-2
       px-5 py-3
@@ -1027,6 +1075,8 @@ if (selectedPeriod === "6M") {
       font-medium
       hover:scale-105
       transition-all
+      disabled:opacity-50
+      disabled:cursor-not-allowed
     "
   >
     <Download size={18} />
@@ -1127,7 +1177,7 @@ if (selectedPeriod === "6M") {
           </p>
 
           <h3 className="text-3xl font-bold mt-2">
-            +18.4%
+            {revenueGrowth}%
           </h3>
         </div>
 
@@ -1142,7 +1192,7 @@ if (selectedPeriod === "6M") {
       </div>
 
       <p className="text-emerald-400 text-sm mt-4">
-        +12% compared to last month
+        Compared to previous month
       </p>
 
     </CardContent>
@@ -1170,7 +1220,7 @@ if (selectedPeriod === "6M") {
           </p>
 
           <h3 className="text-3xl font-bold mt-2">
-            12.8K
+            {activeUsers.toLocaleString()}
           </h3>
         </div>
 
@@ -1185,7 +1235,7 @@ if (selectedPeriod === "6M") {
       </div>
 
       <p className="text-blue-400 text-sm mt-4">
-        +5.2% weekly growth
+        Unique active customers
       </p>
 
     </CardContent>
@@ -1213,7 +1263,7 @@ if (selectedPeriod === "6M") {
           </p>
 
           <h3 className="text-3xl font-bold mt-2">
-            4.8%
+            {conversionRate}%
           </h3>
         </div>
 
@@ -1228,7 +1278,7 @@ if (selectedPeriod === "6M") {
       </div>
 
       <p className="text-purple-400 text-sm mt-4">
-        +1.1% increase this quarter
+        Orders per customer ratio
       </p>
 
     </CardContent>
@@ -1463,7 +1513,16 @@ if (selectedPeriod === "6M") {
         </p>
       </div>
       <div className="grid gap-4">
-        {(analytics?.aiInsights || []).map(
+        {(analytics?.aiInsights || []).length === 0 ? (
+          <div className="
+            text-center
+            py-8
+            text-gray-400
+          ">
+            No AI insights available.
+          </div>
+        ) : (
+          (analytics?.aiInsights || []).map(
           (insight: string, index: number) => (
             <div
               key={index}
@@ -1482,7 +1541,7 @@ if (selectedPeriod === "6M") {
               </p>
             </div>
           )
-        )}
+        ))}
       </div>
     </CardContent>
   </Card>
@@ -1520,7 +1579,17 @@ if (selectedPeriod === "6M") {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {recentOrders.map((order: any, index: number) => (
+          {recentOrders.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="text-center py-10 text-gray-400"
+              >
+                No orders found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            recentOrders.map((order: any, index: number) => (
             <TableRow
               key={index}
               className="border-white/5"
@@ -1530,7 +1599,7 @@ if (selectedPeriod === "6M") {
               <TableCell>{order.amount}</TableCell>
               <TableCell>{order.country}</TableCell>
             </TableRow>
-          ))}
+          )))}
         </TableBody>
       </Table>
     </CardContent>
