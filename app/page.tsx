@@ -101,23 +101,28 @@ export default function Home() {
     darkMode ? "dark" : "light"
   );
 }, [darkMode]);
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const response = await fetch("/api/analytics");
-        if (!response.ok) {
-          throw new Error("Failed to fetch analytics");
-        }
-        const data = await response.json();
-        setAnalytics(data);
-      } catch (error) {
-        console.error("Analytics Error:", error);
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchAnalytics = async () => {
+    const start = Date.now();
+    try {
+      const response = await fetch("/api/analytics");
+      if (!response.ok) {
+        throw new Error("Failed to fetch analytics");
       }
-    };
-    fetchAnalytics();
-  }, []);
+      const data = await response.json();
+      setAnalytics(data);
+    } catch (error) {
+      console.error("Analytics Error:", error);
+    } finally {
+      const elapsed = Date.now() - start;
+      const minimumLoader = 400;
+      setTimeout(() => {
+        setLoading(false);
+      }, Math.max(0, minimumLoader - elapsed));
+    }
+  };
+  fetchAnalytics();
+}, []);
 
   const recentOrders =
   (analytics?.recentOrders || []).filter(
