@@ -337,36 +337,23 @@ const conversionRate =
 
 const filteredRevenueData =
   useMemo(() => {
-    const revenueMap: Record<
-      string,
-      number
-    > = {};
+    const revenueMap: Record<string, number> = {};
 
-    filteredData.forEach(
-      (row: any) => {
-        const month =
-          row.YearMonth;
-
-        if (!month) return;
-
-        if (!revenueMap[month]) {
-          revenueMap[month] = 0;
-        }
-
-        revenueMap[month] += Number(
-          row.Revenue || 0
-        );
+    filteredData.forEach((row: any) => {
+      const date = row.InvoiceDate?.split(" ")[0];
+      if (!date) return;
+      if (!revenueMap[date]) {
+        revenueMap[date] = 0;
       }
-    );
-
+      revenueMap[date] += Number(row.Revenue || 0);
+    });
     return Object.entries(revenueMap)
       .map(([month, revenue]) => ({
         month,
         revenue: Number(revenue),
       }))
-      .sort(
-        (a: any, b: any) =>
-          a.month.localeCompare(b.month)
+      .sort((a: any, b: any) =>
+        a.month.localeCompare(b.month)
       );
   }, [filteredData]);
 let chartData =
@@ -1370,7 +1357,10 @@ const revenueGrowth =
         </div>
 
       <div className="h-[350px]">
-        <ResponsiveContainer width="99%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height={350}
+        >
           <LineChart
             data={chartData}
             margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
@@ -1436,7 +1426,10 @@ const revenueGrowth =
         </p>
       </div>
       <div className="h-[350px]">
-        <ResponsiveContainer width="99%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height={350}
+        >
           <BarChart
             data={selectedCountry === "All"? analytics?.topCountries || []: (analytics?.topCountries || []).filter((country: any) =>country.country === selectedCountry)}
             layout="vertical"
@@ -1493,7 +1486,10 @@ const revenueGrowth =
         </p>
       </div>
       <div className="h-[420px]">
-        <ResponsiveContainer width="99%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height={350}
+        >
           <BarChart
             data={topFilteredProducts.filter((product:any)=>product.product.toLowerCase().includes(searchQuery.toLowerCase()))}
             layout="vertical"
@@ -1686,7 +1682,7 @@ const revenueGrowth =
       <div className="h-[500px]">
         <ResponsiveContainer
           width="100%"
-          height="100%"
+          height={500}
         >
           <BarChart
             data={topFilteredProducts}
@@ -1746,7 +1742,7 @@ const revenueGrowth =
       <div className="h-[500px]">
         <ResponsiveContainer
           width="100%"
-          height="100%"
+          height={500}
         >
           <BarChart
             data={topCustomers}
@@ -1806,7 +1802,7 @@ const revenueGrowth =
       <div className="h-[500px]">
         <ResponsiveContainer
           width="100%"
-          height="100%"
+          height={500}
         >
           <LineChart data={chartData}>
             <CartesianGrid

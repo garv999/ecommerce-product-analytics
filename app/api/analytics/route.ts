@@ -24,7 +24,9 @@ export async function GET() {
       skipEmptyLines: true,
     });
 
-    const data = parsedData.data as any[];
+    const allData = parsedData.data as any[];
+    const chartDataSource = allData;           // full dataset
+    const data = allData.slice(-150000);       // table + filters
 
     // TOTAL REVENUE
     const totalRevenue = data.reduce((sum, row) => {
@@ -43,42 +45,31 @@ export async function GET() {
 
     // MONTHLY REVENUE
     const monthlyMap: Record<string, number> = {};
-
-    data.forEach((row) => {
-
+    chartDataSource.forEach((row) => {
       const month = row.YearMonth;
-
       if (!month) return;
-
       if (!monthlyMap[month]) {
         monthlyMap[month] = 0;
       }
-
       monthlyMap[month] += Number(row.Revenue || 0);
     });
 
-    const revenueChartData = Object.entries(monthlyMap).map(
-      ([month, revenue]) => ({
+    const revenueChartData = Object.entries(monthlyMap)
+      .map(([month, revenue]) => ({
         month,
         revenue: Math.round(revenue),
-      })
-    );
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
     // TOP COUNTRIES
 
     const countryMap: Record<string, number> = {};
-
-    data.forEach((row) => {
-
+    chartDataSource.forEach((row) => {
     const country = row.Country;
-
     if (!country) return;
-
     if (!countryMap[country]) {
         countryMap[country] = 0;
     }
-
     countryMap[country] += Number(row.Revenue || 0);
-
     });
 
     const topCountries = Object.entries(countryMap)
@@ -93,7 +84,7 @@ export async function GET() {
 
     const productMap: Record<string, number> = {};
 
-    data.forEach((row) => {
+    chartDataSource.forEach((row) => {
 
     const product = row.Description;
 
@@ -149,9 +140,8 @@ export async function GET() {
         amount: `₹${Number(row.Revenue).toFixed(0)}`,
         country: row.Country,
       }));
-    const frontendData = data.slice(-5000);
     return NextResponse.json({
-        rawData: frontendData,
+        rawData: data,
         totalRevenue,
         totalOrders: uniqueInvoices.size,
         totalCustomers: uniqueCustomers.size,
