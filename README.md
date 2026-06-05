@@ -1,113 +1,212 @@
-# E-Commerce Analytics Dashboard
+# Ecommerce SaaS Dashboard
 
-AI-powered ecommerce analytics dashboard built using **Next.js, TypeScript, Tailwind CSS, Recharts, and CSV-based analytics APIs**.
-The platform transforms raw ecommerce transaction data into interactive business insights including:
+<p align="center">
+  <strong>Transform raw ecommerce transactions into actionable business intelligence.</strong>
+</p>
 
-- Revenue analytics
-- Customer intelligence
-- Product performance
-- Country-wise revenue analysis
-- AI-generated business insights
-- Interactive filters & visualizations
+<p align="center">
+A modern analytics platform built with Next.js, TypeScript, Tailwind CSS and a CSV-powered analytics engine.
+</p>
 
----
+<p align="center">
 
-## 🌐 Live Demo
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)
 
-### 🚀 Next.js Dashboard (Vercel)
-Coming Soon
-
-### 📊 Previous Streamlit Dashboard
-https://ecommerce-analytics-garv999.streamlit.app/
-
----
-
-## ✨ Features
-
-### 📈 Interactive Analytics Dashboard
-
-- Real-time KPI cards
-- Dynamic revenue charts
-- Top countries analysis
-- Top products analysis
-- AI business insights
-- Recent orders tracking
-
-### 🎨 Modern SaaS UI
-
-- Fully responsive layout
-- Dark / Light mode
-- Animated premium UI
-- Glassmorphism design
-- Sidebar navigation
-- Interactive notifications
-
-### 🔍 Smart Filtering
-
-- Search products dynamically
-- Filter by country
-- Filter by timeline
-- 7D / 30D / 6M revenue views
-
-### ⚡ Dynamic Data Processing
-
-- CSV-driven analytics engine
-- API-based architecture
-- Revenue aggregation
-- Customer segmentation
-- Product revenue ranking
+</p>
 
 ---
 
-# 🛠️ Tech Stack
+## Overview
+
+The Intelligent E-Commerce Analytics Dashboard is a production-style SaaS analytics platform that transforms raw ecommerce transaction data into actionable business intelligence through interactive visualizations and analytics APIs.
+
+Built using modern full-stack technologies, it combines a lightweight analytics API with an elegant dashboard interface to provide real-time insights into:
+
+- Revenue performance
+- Product trends
+- Customer behavior
+- Geographic sales distribution
+- Operational KPIs
+- AI-generated business recommendations
+
+The repository also includes the complete analytics pipeline used to clean, transform, and analyze the underlying dataset, making it both a production-style SaaS application and a comprehensive data analytics project.
+
+---
+
+## Live Demo
+
+### Next.js Dashboard
+
+Deployment to Vercel is currently in progress.
+The application has been production-tested with optimized builds and is ready for deployment.
+
+### Previous Streamlit Prototype
+
+[Streamlit Prototype](https://ecommerce-analytics-garv999.streamlit.app/)
+
+---
+
+## Dashboard Preview
+
+Dashboard screenshots will be added after public deployment.
+
+---
+
+# Features
+
+## Business Analytics
+
+### Revenue Intelligence
+
+* Monthly revenue tracking
+* Dynamic trend visualization
+* Growth indicators
+* KPI monitoring
+
+### Product Analytics
+
+* Top-performing products
+* Revenue contribution analysis
+* Product search
+* Dynamic filtering
+
+### Customer Intelligence
+
+* Customer segmentation
+* Total customer metrics
+* Geographic distribution
+* Recent order tracking
+
+### Country Analytics
+
+* Country-wise revenue
+* Sales contribution charts
+* Regional business insights
+
+### AI Insights Engine
+
+Automatically generates observations such as:
+
+* Highest revenue markets
+* Best-selling products
+* Revenue concentration
+* Customer growth patterns
+* Business recommendations
+
+---
+
+# Modern SaaS Experience
+
+* Responsive layout
+* Dark / Light mode
+* Glassmorphism UI
+* Animated interactions
+* Collapsible sidebar
+* Mobile navigation drawer
+* Notification center
+* Profile menu
+* CSV export functionality
+
+---
+
+# Smart Filtering
+
+Users can dynamically filter the entire dashboard using:
+
+* Product Search
+* Country Filter
+* Timeline Filter
+* 7D / 30D / Full Revenue Views
+
+All charts and KPIs update automatically.
+
+---
+
+# Architecture
+
+```
+                        CSV Dataset
+                              │
+                              ▼
+                  Next.js API Route
+                    (/api/analytics)
+                              │
+               ┌──────────────┼──────────────┐
+               ▼              ▼              ▼
+        Revenue Logic   Product Logic   Customer Logic
+               │              │              │
+               └──────────────┼──────────────┘
+                              ▼
+                   Analytics JSON API
+                              │
+                              ▼
+                  React Dashboard UI
+                              │
+               ┌──────────────┼──────────────┐
+               ▼              ▼              ▼
+          Charts         KPI Cards      AI Insights
+```
+
+---
+
+# Technology Stack
 
 ## Frontend
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- Recharts
-- Lucide Icons
+* Next.js 16
+* React 19
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* Recharts
+* Lucide React
 
-## Backend / Data Layer
+## Backend
 
-- Next.js API Routes
-- PapaParse
-- CSV Processing
-- Node.js FS module
+* Next.js API Routes
+* Node.js
+* PapaParse
+* CSV Processing
+* File System API
 
-## Data Science Stack
+## Data Analytics
 
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- SQL
-- Jupyter Notebook
+* Python
+* Pandas
+* NumPy
+* SQL
+* Jupyter Notebook
+* Matplotlib
+* Seaborn
 
 ---
 
-# 📂 Project Structure
+## Project Structure
 
-```bash
-ecommerce-product-analytics/
+```text
+ecommerce-saas-dashboard/
 │
-├── app/
+├── app/                           # Next.js App Router
 │   ├── api/
 │   │   └── analytics/
-│   │       └── route.ts
-│   │
-│   ├── favicon.ico
+│   │       └── route.ts           # Analytics API
 │   ├── globals.css
 │   ├── layout.tsx
-│   └── page.tsx
+│   └── page.tsx                   # Main SaaS Dashboard
 │
 ├── components/
-│   └── ui/
+│   └── ui/                        # Reusable UI components
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── table.tsx
+│       └── tabs.tsx
 │
-├── dashboard/
+├── dashboard/                     # Legacy Streamlit prototype
 │   ├── app.py
 │   ├── pages/
 │   └── styles/
@@ -116,9 +215,7 @@ ecommerce-product-analytics/
 │   └── processed/
 │       └── cleaned_online_retail.csv
 │
-├── lib/
-│
-├── notebooks/
+├── notebooks/                     # Data analysis notebooks
 │   ├── 01_data_inspection.ipynb
 │   ├── 02_rfm_segmentation.ipynb
 │   ├── 03_cohort_analysis.ipynb
@@ -127,26 +224,9 @@ ecommerce-product-analytics/
 │   └── 06_churn_analysis.ipynb
 │
 ├── outputs/
-│   ├── figures/
-│   │   ├── churn_status.png
-│   │   ├── cohort_retention_heatmap.png
-│   │   ├── dashboard.png
-│   │   ├── monthly_revenue_trend.png
-│   │   ├── repeat_products.png
-│   │   ├── rfm_customer_segments.png
-│   │   ├── top_countries_revenue.png
-│   │   ├── top_products_quantity.png
-│   │   └── top_products_revenue.png
-│   │
+│   ├── figures/                   # Generated visualizations
 │   └── reports/
 │       └── insights.md
-│
-├── public/
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
 │
 ├── sql/
 │   └── analysis_queries.sql
@@ -154,93 +234,112 @@ ecommerce-product-analytics/
 ├── src/
 │   └── utils.py
 │
-├── .env
-├── .gitignore
-├── AGENTS.md
-├── CLAUDE.md
-├── components.json
-├── eslint.config.mjs
-├── next-env.d.ts
-├── next.config.ts
+├── public/
 ├── package.json
-├── postcss.config.mjs
-├── README.md
-└── requirements.txt
+├── next.config.ts
+├── eslint.config.mjs
+├── tsconfig.json
+└── README.md
 ```
 
 ---
 
-# 📊 Dashboard Modules
+## Repository Organization
 
-## 1️⃣ Revenue Analytics
+This repository consists of two connected layers.
 
-- Revenue trends over time
-- Dynamic chart filtering
-- KPI tracking
-- Revenue growth insights
+### 1. Analytics Engine
 
-## 2️⃣ Product Analytics
+Responsible for:
 
-- Top revenue-generating products
-- Product search functionality
-- Product performance comparison
+- Data cleaning
+- Revenue aggregation
+- RFM segmentation
+- CLV analysis
+- Cohort analysis
+- Customer churn exploration
+- SQL analytics
 
-## 3️⃣ Customer Analytics
+Built using:
 
-- Total customers
-- Customer behavior insights
-- Geographic customer distribution
-
-## 4️⃣ AI Insights Engine
-
-Automatically generated insights such as:
-
-- Top-performing countries
-- Best-selling products
-- Average order value
-- Customer growth observations
+- Python
+- Pandas
+- NumPy
+- SQL
+- Jupyter Notebook
 
 ---
 
-# 📈 Visualizations Included
+### 2. SaaS Dashboard
 
-- Revenue Trend Line Chart
-- Top Countries Bar Chart
-- Top Products Chart
-- KPI Analytics Cards
-- Interactive Tables
+Provides an interactive analytics experience with:
 
----
+- KPI monitoring
+- Revenue visualization
+- Product & customer analytics
+- Geographic insights
+- AI-generated business recommendations
 
-# 📦 Dataset
+Built using:
 
-## Source
-Online Retail Dataset — UCI Machine Learning Repository
-
-## Main Fields
-
-- Invoice
-- Customer ID
-- Description
-- Quantity
-- Revenue
-- Country
-- YearMonth
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Recharts
 
 ---
 
-# 🚀 Getting Started
+## API
+
+### Endpoint
+
+```http
+GET /api/analytics
+```
+
+The analytics API processes the cleaned ecommerce dataset and dynamically generates dashboard-ready JSON.
+
+### Response
+
+```json
+{
+  "revenue": "...",
+  "orders": "...",
+  "customers": "...",
+  "topProducts": [],
+  "topCountries": [],
+  "recentOrders": [],
+  "aiInsights": []
+}
+```
+
+---
+
+# Dataset
+
+**Source:** Online Retail Dataset (UCI Machine Learning Repository)
+
+### Core Fields
+
+| Field       | Description         |
+| ----------- | ------------------- |
+| Invoice     | Transaction ID      |
+| Customer ID | Unique Customer     |
+| Description | Product Name        |
+| Quantity    | Units Purchased     |
+| Revenue     | Transaction Revenue |
+| Country     | Customer Country    |
+| YearMonth   | Aggregated Month    |
+
+---
+
+# Local Development
 
 ## Clone Repository
 
 ```bash
 git clone https://github.com/garv999/ecommerce-product-analytics.git
-```
-
-## Navigate Into Project
-
-```bash
-cd ecommerce-product-analytics
 ```
 
 ## Install Dependencies
@@ -249,86 +348,65 @@ cd ecommerce-product-analytics
 npm install
 ```
 
-## Run Development Server
+## Start Development Server
 
 ```bash
 npm run dev
 ```
 
-Open:
+Visit:
 
-```bash
+```text
 http://localhost:3000
 ```
 
 ---
 
-# 📡 API Endpoint
+# Deployment
 
-Analytics data is served through:
+The application is optimized for deployment on Vercel.
 
 ```bash
-/api/analytics
+npm run build
 ```
 
-The API dynamically processes CSV data and returns:
-
-- Revenue metrics
-- Orders
-- Customers
-- Chart datasets
-- AI insights
-- Product analytics
-- Country analytics
+Production build is fully optimized and deployment-ready.
 
 ---
 
-# 🌙 UI Features
+# Engineering Highlights
 
-- Dark / Light mode
-- Responsive sidebar
-- Interactive charts
-- Animated hover effects
-- Glassmorphism cards
-- Notification dropdowns
-
----
-
-# 📌 Future Improvements
-
-- Authentication system
-- Real-time database integration
-- Machine learning forecasting
-- Customer churn prediction
-- Export reports as PDF
-- Advanced cohort analysis
-- Role-based dashboards
+* API-first architecture
+* CSV-driven analytics pipeline
+* Responsive SaaS interface
+* Persistent theme management
+* Dynamic client-side filtering
+* Reusable component system
+* Production-ready Next.js structure
 
 ---
 
-# 👨‍💻 Author
+## Author
 
-## Garv Agarwal
+**Garv Agarwal**
 
-Final Year B.Tech CSE (Data Science) Student
+Computer Science (Data Science) undergraduate passionate about building AI products, analytics platforms, and modern SaaS applications.
 
-Passionate about:
-- Data Analytics
-- AI Products
-- SaaS Platforms
-- Generative AI
-- Full Stack Development
-
-GitHub:
-https://github.com/garv999
+- GitHub: https://github.com/garv999
+- LinkedIn: https://www.linkedin.com/in/garv-agarwal-0273161b9
 
 ---
 
-# ⭐ Project Highlights
+## License
 
-✅ Premium SaaS Dashboard  
-✅ Real CSV-driven analytics  
-✅ Next.js + TypeScript architecture  
-✅ Responsive UI  
-✅ Vercel deployment ready  
-✅ AI-powered ecommerce insights
+This project is available under the MIT License.
+
+---
+
+<p align="center">
+  <strong>Turning data into business decisions.</strong>
+</p>
+
+<p align="center">
+Built with Next.js • TypeScript • Tailwind CSS • Recharts • Data Analytics
+</p>
