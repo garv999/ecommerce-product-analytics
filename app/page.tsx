@@ -124,24 +124,24 @@ useEffect(() => {
   fetchAnalytics();
 }, []);
 
-  const recentOrders =
-  (analytics?.recentOrders || []).filter(
-    (order: any) => {
-      const matchesSearch =
-        order.product
-          ?.toLowerCase()
-          .includes(
-            searchQuery.toLowerCase()
-          );
-      const matchesCountry =
-        selectedCountry === "All" ||
-        order.country === selectedCountry;
-      return (
-        matchesSearch &&
-        matchesCountry
-      );
-    }
-  );
+const recentOrders =
+(analytics?.recentOrders || []).filter(
+  (order: any) => {
+    const matchesSearch =
+      order.product
+        ?.toLowerCase()
+        .includes(
+          searchQuery.toLowerCase()
+        );
+    const matchesCountry =
+      selectedCountry === "All" ||
+      order.country === selectedCountry;
+    return (
+      matchesSearch &&
+      matchesCountry
+    );
+  }
+);
 const rawData =
   analytics?.rawData || [];
 const filteredData = useMemo(() => {
@@ -171,6 +171,26 @@ const filteredData = useMemo(() => {
   selectedCountry,
   dateRange,
 ]);
+
+const openGitHub = () => {
+  window.open(
+    "https://github.com/garv999",
+    "_blank"
+  );
+};
+const openLinkedIn = () => {
+  window.open(
+    "https://www.linkedin.com/in/garv-agarwal-0273161b9",
+    "_blank"
+  );
+};
+const comingSoon = () => {
+  alert("Feature coming soon!");
+};
+const refreshDashboard = () => {
+  setShowProfileMenu(false);
+  window.location.reload();
+};
 const exportCSV = () => {
   const headers = [
     "Invoice",
@@ -1002,53 +1022,29 @@ if (selectedPeriod === "6M") {
       `}
     >
       <button
-        className="
-          w-full
-          text-left
-          px-5 py-4
-          hover:bg-emerald-500/10
-          transition
-        "
-      >
-        My Profile
-      </button>
-      <button
-        className="
-          w-full
-          text-left
-          px-5 py-4
-          hover:bg-emerald-500/10
-          transition
-        "
-      >
-        Settings
-      </button>
-      <button
-        onClick={() =>
-          setDarkMode(!darkMode)
-        }
-        className="
-          w-full
-          text-left
-          px-5 py-4
-          hover:bg-emerald-500/10
-          transition
-        "
-      >
-        Toggle Theme
-      </button>
-      <button
-        className="
-          w-full
-          text-left
-          px-5 py-4
-          text-red-400
-          hover:bg-red-500/10
-          transition
-        "
-      >
-        Logout
-      </button>
+  onClick={openGitHub}
+  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
+>
+  GitHub
+</button>
+<button
+  onClick={openLinkedIn}
+  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
+>
+  LinkedIn
+</button>
+<button
+  onClick={() => setDarkMode(!darkMode)}
+  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
+>
+  Toggle Theme
+</button>
+<button
+  onClick={() => setShowProfileMenu(false)}
+  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
+>
+  Close Menu
+</button>
     </div>
   )}
 </div>
@@ -1369,7 +1365,9 @@ if (selectedPeriod === "6M") {
                 ${
                   selectedPeriod === period
                     ? "bg-emerald-500 text-black"
-                    : "bg-[#111111] text-gray-400 hover:text-white"
+                    : darkMode
+                      ? "bg-[#111111] text-gray-400 hover:text-white"
+                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
                 }
               `}
             >
@@ -1386,13 +1384,16 @@ if (selectedPeriod === "6M") {
             data={chartData}
             margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={darkMode ? "#1f2937" : "#d1d5db"}
+            />
             <XAxis
               dataKey="month"
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <YAxis
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <Tooltip />
             <Line
@@ -1451,16 +1452,16 @@ if (selectedPeriod === "6M") {
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#1f2937"
+              stroke={darkMode ? "#1f2937" : "#d1d5db"}
             />
             <XAxis
               type="number"
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <YAxis
               type="category"
               dataKey="country"
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
               width={120}
             />
             <Tooltip />
@@ -1508,17 +1509,17 @@ if (selectedPeriod === "6M") {
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#1f2937"
+              stroke={darkMode ? "#1f2937" : "#d1d5db"}
             />
             <XAxis
               type="number"
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <YAxis
               type="category"
               dataKey="product"
-              stroke="#9ca3af"
-              width={220}
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
+              width={120}
             />
             <Tooltip />
             <Bar
@@ -1551,7 +1552,13 @@ if (selectedPeriod === "6M") {
         <h3 className="text-2xl font-bold">
           AI Business Insights
         </h3>
-        <p className="text-gray-400 mt-1">
+        <p
+          className={`mt-1 ${
+            darkMode
+              ? "text-gray-400"
+              : "text-gray-600"
+          }`}
+        >
           Automated ecommerce recommendations
         </p>
       </div>
@@ -1568,18 +1575,33 @@ if (selectedPeriod === "6M") {
           (analytics?.aiInsights || []).map(
           (insight: string, index: number) => (
             <div
-              key={index}
-              className="
-                bg-white/[0.04]
-                border border-white/5
+              className={`
                 rounded-2xl
                 p-4
-                hover:border-purple-400/20
                 transition-all
                 duration-300
-              "
+                ${
+                  darkMode
+                    ? `
+                      bg-white/[0.04]
+                      border border-white/5
+                      hover:border-purple-400/20
+                    `
+                    : `
+                      bg-gray-50
+                      border border-gray-200
+                      hover:border-purple-300
+                    `
+                }
+              `}
             >
-              <p className="text-gray-200">
+              <p
+                className={
+                  darkMode
+                    ? "text-gray-200"
+                    : "text-gray-700"
+                }
+              >
                 ✨ {insight}
               </p>
             </div>
@@ -1794,19 +1816,17 @@ if (selectedPeriod === "6M") {
           width="100%"
           height="100%"
         >
-          <LineChart
-            data={monthlyRevenueStats}
-          >
+          <LineChart data={monthlyRevenueStats}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#1f2937"
+              stroke={darkMode ? "#1f2937" : "#d1d5db"}
             />
             <XAxis
               dataKey="month"
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <YAxis
-              stroke="#9ca3af"
+              stroke={darkMode ? "#9ca3af" : "#4b5563"}
             />
             <Tooltip />
             <Line
