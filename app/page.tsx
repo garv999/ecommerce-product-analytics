@@ -1573,40 +1573,40 @@ if (selectedPeriod === "6M") {
           </div>
         ) : (
           (analytics?.aiInsights || []).map(
-          (insight: string, index: number) => (
-            <div
-              className={`
-                rounded-2xl
-                p-4
-                transition-all
-                duration-300
-                ${
-                  darkMode
-                    ? `
-                      bg-white/[0.04]
-                      border border-white/5
-                      hover:border-purple-400/20
-                    `
-                    : `
-                      bg-gray-50
-                      border border-gray-200
-                      hover:border-purple-300
-                    `
-                }
-              `}
-            >
-              <p
-                className={
-                  darkMode
-                    ? "text-gray-200"
-                    : "text-gray-700"
-                }
+            (insight: string, index: number) => (
+              <div
+                key={index}
+                className={`
+                  rounded-2xl
+                  p-4
+                  transition-all
+                  duration-300
+                  ${
+                    darkMode
+                      ? `
+                        bg-white/[0.04]
+                        border border-white/5
+                        hover:border-purple-400/20
+                      `
+                      : `
+                        bg-gray-50
+                        border border-gray-200
+                        hover:border-purple-300
+                      `
+                  }
+                `}
               >
-                ✨ {insight}
-              </p>
-            </div>
-          )
-        ))}
+                <p
+                  className={
+                    darkMode
+                      ? "text-gray-200"
+                      : "text-gray-700"
+                  }
+                >
+                  ✨ {insight}
+                </p>
+              </div>
+          )))}
       </div>
     </CardContent>
   </Card>
