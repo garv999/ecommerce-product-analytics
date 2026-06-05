@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -137,29 +137,35 @@ export default function Home() {
       );
     }
   );
-  const rawData =
-analytics?.rawData || [];
-let filteredData = rawData;
-// SEARCH FILTER
-filteredData = filteredData.filter(
-  (row: any) =>
-    row.Description
-      ?.toLowerCase()
-      .includes(
-        searchQuery.toLowerCase()
-      )
-);
-// COUNTRY FILTER
-if (selectedCountry !== "All") {
-  filteredData = filteredData.filter(
+const rawData =
+  analytics?.rawData || [];
+const filteredData = useMemo(() => {
+  let data = [...rawData];
+  data = data.filter(
     (row: any) =>
-      row.Country === selectedCountry
+      row.Description
+        ?.toLowerCase()
+        .includes(
+          searchQuery.toLowerCase()
+        )
   );
-}
-// DATE FILTER
-if (dateRange === "Recent") {
-  filteredData = filteredData.slice(-500);
-}
+  if (selectedCountry !== "All") {
+    data = data.filter(
+      (row: any) =>
+        row.Country ===
+        selectedCountry
+    );
+  }
+  if (dateRange === "Recent") {
+    data = data.slice(-500);
+  }
+  return data;
+}, [
+  rawData,
+  searchQuery,
+  selectedCountry,
+  dateRange,
+]);
 const exportCSV = () => {
   const headers = [
     "Invoice",
@@ -221,59 +227,90 @@ const filteredCustomers =
       (row: any) => row["Customer ID"]
     )
   ).size;
-  const revenueMap: Record<string, number> =
-  {};
-filteredData.forEach((row: any) => {
-  const month = row.YearMonth;
-  if (!month) return;
-  if (!revenueMap[month]) {
-    revenueMap[month] = 0;
-  }
-  revenueMap[month] += Number(
-    row.Revenue || 0
-  );
-});
 const filteredRevenueData =
-  Object.entries(revenueMap).map(
-    ([month, revenue]) => ({
-      month,
-      revenue,
-    })
-  );
-const topFilteredProducts =
-  Object.entries(
-    filteredData.reduce(
-      (
-        acc: Record<string, number>,
-        row: any
-      ) => {
-        const product =
-          row.Description || "Unknown";
-        if (!acc[product]) {
-          acc[product] = 0;
+  useMemo(() => {
+    const revenueMap: Record<
+      string,
+      number
+    > = {};
+    filteredData.forEach(
+      (row: any) => {
+        const month =
+          row.YearMonth;
+        if (!month) return;
+        if (!revenueMap[month]) {
+          revenueMap[
+            month
+          ] = 0;
         }
-        acc[product] += Number(
+        revenueMap[
+          month
+        ] += Number(
           row.Revenue || 0
         );
-        return acc;
-      },
-      {}
+      }
+    );
+    return Object.entries(
+      revenueMap
+    ).map(
+      ([month, revenue]) => ({
+        month,
+        revenue,
+      })
+    );
+  }, [filteredData]);
+
+const topFilteredProducts =
+  useMemo(() => {
+    return Object.entries(
+      filteredData.reduce(
+        (
+          acc: Record<
+            string,
+            number
+          >,
+          row: any
+        ) => {
+          const product =
+            row.Description ||
+            "Unknown";
+
+          if (!acc[product]) {
+            acc[product] = 0;
+          }
+          acc[product] += Number(
+            row.Revenue || 0
+          );
+
+          return acc;
+        },
+        {}
+      )
     )
-  )
-    .map(([product, revenue]) => ({
-      product:
-        product.length > 28
-          ? product.slice(0, 28) + "..."
-          : product,
-      revenue,
-    }))
-    .sort(
-      (a: any, b: any) =>
-        b.revenue - a.revenue
-    )
-    .slice(0, 10);
-const topCustomers =
-  Object.entries(
+      .map(
+        ([product, revenue]) => ({
+          product:
+            product.length > 28
+              ? product.slice(
+                  0,
+                  28
+                ) + "..."
+              : product,
+          revenue,
+        })
+      )
+      .sort(
+        (
+          a: any,
+          b: any
+        ) =>
+          b.revenue -
+          a.revenue
+      )
+      .slice(0, 10);
+  }, [filteredData]);
+const topCustomers = useMemo(() => {
+  return Object.entries(
     filteredData.reduce(
       (
         acc: Record<string, number>,
@@ -301,6 +338,7 @@ const topCustomers =
         b.revenue - a.revenue
     )
     .slice(0, 10);
+}, [filteredData]);
 const monthlyRevenueStats =
   filteredRevenueData.map(
     (item: any) => ({
