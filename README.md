@@ -1,5 +1,5 @@
 <p align="center">
-# Ecommerce SaaS Dashboard
+Ecommerce SaaS Dashboard
 </p>
 
 <p align="center">
