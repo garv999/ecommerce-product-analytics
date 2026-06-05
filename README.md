@@ -1,6 +1,5 @@
-<p align="center">
-Ecommerce SaaS Dashboard
-</p>
+# Ecommerce SaaS Dashboard
+
 
 <p align="center">
   <strong>Transform raw ecommerce transactions into actionable business intelligence.</strong>
