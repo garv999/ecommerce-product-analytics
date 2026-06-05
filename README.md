@@ -46,11 +46,14 @@ The repository also includes the complete analytics pipeline used to clean, tran
 ### 🚀 Live Dashboard
 
 [Vercel](https://ecommerce-product-analytics.vercel.app)
+
 Experience the fully interactive production deployment built with Next.js and TypeScript.
 
 ### Previous Streamlit Prototype
 
 [Streamlit Prototype](https://ecommerce-analytics-garv999.streamlit.app/)
+
+Original proof-of-concept version before migration to the modern SaaS architecture.
 
 ---
 
