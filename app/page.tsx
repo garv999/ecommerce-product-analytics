@@ -142,8 +142,7 @@ const recentOrders =
     );
   }
 );
-const rawData =
-  analytics?.rawData || [];
+const rawData = analytics?.rawData || [];
 const filteredData = useMemo(() => {
   let data = [...rawData];
   data = data.filter(
@@ -183,13 +182,6 @@ const openLinkedIn = () => {
     "https://www.linkedin.com/in/garv-agarwal-0273161b9",
     "_blank"
   );
-};
-const comingSoon = () => {
-  alert("Feature coming soon!");
-};
-const refreshDashboard = () => {
-  setShowProfileMenu(false);
-  window.location.reload();
 };
 const exportCSV = () => {
   const headers = [
@@ -234,57 +226,6 @@ const exportCSV = () => {
   link.click();
   document.body.removeChild(link);
 };
-const filteredRevenue =
-  filteredData.reduce(
-    (sum: number, row: any) =>
-      sum + Number(row.Revenue || 0),
-    0
-  );
-const filteredOrders =
-  new Set(
-    filteredData.map(
-      (row: any) => row.Invoice
-    )
-  ).size;
-const filteredCustomers =
-  new Set(
-    filteredData.map(
-      (row: any) => row["Customer ID"]
-    )
-  ).size;
-const filteredRevenueData =
-  useMemo(() => {
-    const revenueMap: Record<
-      string,
-      number
-    > = {};
-    filteredData.forEach(
-      (row: any) => {
-        const month =
-          row.YearMonth;
-        if (!month) return;
-        if (!revenueMap[month]) {
-          revenueMap[
-            month
-          ] = 0;
-        }
-        revenueMap[
-          month
-        ] += Number(
-          row.Revenue || 0
-        );
-      }
-    );
-    return Object.entries(
-      revenueMap
-    ).map(
-      ([month, revenue]) => ({
-        month,
-        revenue,
-      })
-    );
-  }, [filteredData]);
-
 const topFilteredProducts =
   useMemo(() => {
     return Object.entries(
@@ -315,10 +256,10 @@ const topFilteredProducts =
       .map(
         ([product, revenue]) => ({
           product:
-            product.length > 28
+            product.length > 40
               ? product.slice(
                   0,
-                  28
+                  40
                 ) + "..."
               : product,
           revenue,
@@ -364,61 +305,106 @@ const topCustomers = useMemo(() => {
     )
     .slice(0, 10);
 }, [filteredData]);
-const monthlyRevenueStats =
-  filteredRevenueData.map(
-    (item: any) => ({
-      month: item.month,
-      revenue: item.revenue,
-    })
+const filteredRevenue =
+  filteredData.reduce(
+    (sum: number, row: any) =>
+      sum + Number(row.Revenue || 0),
+    0
   );
-const currentMonthRevenue =
-  filteredRevenueData.length > 0
+
+const filteredOrders =
+  new Set(
+    filteredData.map(
+      (row: any) => row.Invoice
+    )
+  ).size;
+
+const activeUsers =
+  new Set(
+    filteredData.map(
+      (row: any) =>
+        row["Customer ID"]
+    )
+  ).size;
+
+const conversionRate =
+  activeUsers > 0
+    ? (
+        filteredOrders /
+        activeUsers
+      ).toFixed(1)
+    : "0.0";
+
+const filteredRevenueData =
+  useMemo(() => {
+    const revenueMap: Record<
+      string,
+      number
+    > = {};
+
+    filteredData.forEach(
+      (row: any) => {
+        const month =
+          row.YearMonth;
+
+        if (!month) return;
+
+        if (!revenueMap[month]) {
+          revenueMap[month] = 0;
+        }
+
+        revenueMap[month] += Number(
+          row.Revenue || 0
+        );
+      }
+    );
+
+    return Object.entries(revenueMap)
+      .map(([month, revenue]) => ({
+        month,
+        revenue: Number(revenue),
+      }))
+      .sort(
+        (a: any, b: any) =>
+          a.month.localeCompare(b.month)
+      );
+  }, [filteredData]);
+let chartData =
+  filteredRevenueData;
+if (selectedPeriod === "7D") {
+  chartData =
+    chartData.slice(-7);
+}
+if (selectedPeriod === "30D") {
+  chartData =
+    chartData.slice(-12);
+}
+const currentRevenue =
+  chartData.length > 0
     ? Number(
-        filteredRevenueData[
-          filteredRevenueData.length - 1
+        chartData[
+          chartData.length - 1
         ].revenue
       )
     : 0;
-const previousMonthRevenue =
-  filteredRevenueData.length > 1
+const previousRevenue =
+  chartData.length > 1
     ? Number(
-        filteredRevenueData[
-          filteredRevenueData.length - 2
+        chartData[
+          chartData.length - 2
         ].revenue
       )
     : 0;
 const revenueGrowth =
-  previousMonthRevenue > 0
+  previousRevenue > 0
     ? (
-        ((currentMonthRevenue -
-          previousMonthRevenue) /
-          previousMonthRevenue) *
+        ((currentRevenue -
+          previousRevenue) /
+          previousRevenue) *
         100
       ).toFixed(1)
     : "0.0";
-const activeUsers =
-  filteredCustomers;
-const conversionRate =
-  filteredCustomers > 0
-    ? (
-        (filteredOrders /
-          filteredCustomers) *
-        100
-      ).toFixed(1)
-    : "0.0";
-  let chartData = filteredRevenueData;
-if (selectedPeriod === "7D") {
-  chartData =
-    filteredRevenueData.slice(-7);
-}
-if (selectedPeriod === "30D") {
-  chartData =
-    filteredRevenueData.slice(-12);
-}
-if (selectedPeriod === "6M") {
-  chartData =
-    filteredRevenueData;
-}
+
     if (loading) {
       return (
         <div
@@ -1104,7 +1090,7 @@ if (selectedPeriod === "6M") {
   {/* EXPORT CSV BUTTON */}
   <button
     onClick={exportCSV}
-    disabled={filteredData.length === 0}
+    disabled={!analytics}
     className="
       flex items-center gap-2
       px-5 py-3
@@ -1151,7 +1137,12 @@ if (selectedPeriod === "6M") {
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Revenue</p>
-              <h3 className="text-3xl font-bold mt-2">₹{analytics? (filteredRevenue / 10000000).toFixed(2): "0.00"} Cr</h3>
+              <h3 className="text-3xl font-bold mt-2">
+                ₹{(
+                  filteredRevenue /
+                  10000000
+                ).toFixed(2)} Cr
+              </h3>
             </CardContent>
           </Card>
 
@@ -1168,7 +1159,7 @@ if (selectedPeriod === "6M") {
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Total Orders</p>
-              <h3 className="text-3xl font-bold mt-2">{filteredOrders?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{filteredOrders.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -1185,7 +1176,7 @@ if (selectedPeriod === "6M") {
           >
             <CardContent className="p-6">
               <p className={secondaryText}>Customers</p>
-              <h3 className="text-3xl font-bold mt-2">{filteredCustomers?.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold mt-2">{activeUsers.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -1298,11 +1289,11 @@ if (selectedPeriod === "6M") {
 
         <div>
           <p className="text-gray-400 text-sm">
-            Conversion Rate
+             Avg Orders / Customer
           </p>
 
           <h3 className="text-3xl font-bold mt-2">
-            {conversionRate}%
+            {conversionRate}
           </h3>
         </div>
 
@@ -1317,7 +1308,7 @@ if (selectedPeriod === "6M") {
       </div>
 
       <p className="text-purple-400 text-sm mt-4">
-        Orders per customer ratio
+         Average orders placed by each customer
       </p>
 
     </CardContent>
@@ -1400,6 +1391,7 @@ if (selectedPeriod === "6M") {
               type="monotone"
               dataKey="revenue"
               stroke="#06b6d4"
+              connectNulls={true}
               strokeWidth={3}
               dot={{
                 r: 5,
@@ -1503,7 +1495,7 @@ if (selectedPeriod === "6M") {
       <div className="h-[420px]">
         <ResponsiveContainer width="99%" height="100%">
           <BarChart
-            data={(analytics?.topProducts || []).filter((product: any) =>product.product?.toLowerCase().includes(searchQuery.toLowerCase()))}
+            data={topFilteredProducts.filter((product:any)=>product.product.toLowerCase().includes(searchQuery.toLowerCase()))}
             layout="vertical"
             margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
           >
@@ -1816,7 +1808,7 @@ if (selectedPeriod === "6M") {
           width="100%"
           height="100%"
         >
-          <LineChart data={monthlyRevenueStats}>
+          <LineChart data={chartData}>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke={darkMode ? "#1f2937" : "#d1d5db"}
@@ -1833,6 +1825,7 @@ if (selectedPeriod === "6M") {
               type="monotone"
               dataKey="revenue"
               stroke="#06b6d4"
+              connectNulls={true}
               strokeWidth={4}
             />
           </LineChart>

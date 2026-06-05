@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import Papa from "papaparse";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
@@ -86,7 +87,7 @@ export async function GET() {
         revenue: Math.round(revenue),
     }))
     .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 7);
+    // .slice(0, 20);
 
     // TOP PRODUCTS
 
@@ -148,15 +149,16 @@ export async function GET() {
         amount: `₹${Number(row.Revenue).toFixed(0)}`,
         country: row.Country,
       }));
-
+    const frontendData = data.slice(-5000);
     return NextResponse.json({
+        rawData: frontendData,
         totalRevenue,
         totalOrders: uniqueInvoices.size,
         totalCustomers: uniqueCustomers.size,
         revenueChartData,
         topCountries,
         topProducts,
-        rawData: data,
+
         aiInsights,
         recentOrders,
     });
