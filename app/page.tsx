@@ -1,5 +1,34 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Bell,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  LayoutDashboard,
+  Menu,
+  Moon,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  Sun,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -9,55 +38,209 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  LineChart,
-  BarChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import {
-  LayoutDashboard,
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  Bell,
-  Search,
-  ArrowUpRight,
-  Activity,
-  DollarSign,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Sun,
-  Moon,
-  ChevronDown,
-  Download,
-} from "lucide-react";
+
+type RetailRow = {
+  Invoice?: string;
+  InvoiceDate?: string;
+  YearMonth?: string;
+  Description?: string;
+  Country?: string;
+  Revenue?: number | string;
+  "Customer ID"?: string;
+};
+
+type AnalyticsPayload = {
+  rawData: RetailRow[];
+  totalRevenue: number;
+  totalOrders: number;
+  totalCustomers: number;
+  revenueChartData: { month: string; revenue: number }[];
+  topCountries: { country: string; revenue: number }[];
+  topProducts: { product: string; revenue: number }[];
+  aiInsights: string[];
+  recentOrders: {
+    customer: string;
+    product: string;
+    amount: string;
+    country: string;
+  }[];
+};
 
 const sidebarItems = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Products",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Customers",
-    icon: Users,
-  },
-  {
-    title: "Revenue",
-    icon: TrendingUp,
-  },
+  { title: "Dashboard", icon: LayoutDashboard },
+  { title: "Products", icon: ShoppingCart },
+  { title: "Customers", icon: Users },
+  { title: "Revenue", icon: TrendingUp },
 ];
+
+const notifications = [
+  { title: "Revenue increased by 12%", time: "2 min ago" },
+  { title: "New customer registered", time: "10 min ago" },
+  { title: "Top product sales spiked", time: "25 min ago" },
+];
+
+const compactCurrency = (value: number) =>
+  `₹${(value / 10000000).toFixed(2)} Cr`;
+
+const tooltipStyle = {
+  background: "#0d1117",
+  border: "1px solid rgba(148, 163, 184, 0.18)",
+  borderRadius: 8,
+  color: "#f8fafc",
+};
+
+function SidebarPanel({
+  sidebarOpen,
+  activeSidebar,
+  inputSurface,
+  mutedText,
+  filteredRows,
+  onToggleSidebar,
+  onSelectItem,
+}: {
+  sidebarOpen: boolean;
+  activeSidebar: string;
+  inputSurface: string;
+  mutedText: string;
+  filteredRows: number;
+  onToggleSidebar: () => void;
+  onSelectItem: (title: string) => void;
+}) {
+  return (
+    <>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <p className="text-lg font-semibold tracking-tight text-emerald-300">
+            {sidebarOpen ? "EcommerceAI" : "EA"}
+          </p>
+          {sidebarOpen && (
+            <p className={`mt-1 text-xs ${mutedText}`}>Growth intelligence</p>
+          )}
+        </div>
+        <button
+          type="button"
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          onClick={onToggleSidebar}
+          className={`hidden size-8 items-center justify-center rounded-lg border transition md:flex ${inputSurface}`}
+        >
+          {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+        </button>
+      </div>
+
+      <nav aria-label="Primary" className="space-y-1.5">
+        {sidebarItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeSidebar === item.title;
+
+          return (
+            <button
+              key={item.title}
+              type="button"
+              onClick={() => onSelectItem(item.title)}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                sidebarOpen ? "justify-start" : "justify-center"
+              } ${
+                isActive
+                  ? "bg-emerald-400/12 text-emerald-300 ring-1 ring-emerald-400/25"
+                  : `${mutedText} hover:bg-slate-500/10 hover:text-current`
+              }`}
+              title={item.title}
+            >
+              <Icon size={18} />
+              {sidebarOpen && <span>{item.title}</span>}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className={`mt-auto rounded-lg border p-3 ${inputSurface}`}>
+        <p className="text-xs font-medium text-emerald-300">Live data</p>
+        {sidebarOpen && (
+          <p className={`mt-1 text-xs leading-5 ${mutedText}`}>
+            {filteredRows.toLocaleString()} filtered rows synced from retail
+            transactions.
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  delta,
+  accent,
+  data,
+  cardSurface,
+  mutedText,
+  growthPositive,
+}: {
+  label: string;
+  value: string;
+  delta: string;
+  accent: string;
+  data: { month: string; revenue: number }[];
+  cardSurface: string;
+  mutedText: string;
+  growthPositive: boolean;
+}) {
+  const values = data.slice(-16).map((point) => point.revenue);
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = Math.max(max - min, 1);
+  const points = values
+    .map((value, index) => {
+      const x = values.length > 1 ? (index / (values.length - 1)) * 100 : 0;
+      const y = 42 - ((value - min) / range) * 34;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  const fillPoints = `0,48 ${points} 100,48`;
+
+  return (
+    <Card className={`${cardSurface} rounded-lg transition hover:-translate-y-0.5`}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className={`text-xs font-medium uppercase tracking-wide ${mutedText}`}>
+              {label}
+            </p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
+          </div>
+          <span
+            className={`rounded-md px-2 py-1 text-xs font-semibold ${
+              growthPositive
+                ? "bg-emerald-400/12 text-emerald-300"
+                : "bg-rose-400/12 text-rose-300"
+            }`}
+          >
+            {delta}
+          </span>
+        </div>
+        <div className="mt-5 h-14">
+          <svg
+            aria-hidden="true"
+            className="h-full w-full overflow-visible"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 48"
+          >
+            <polygon points={fillPoints} fill={accent} opacity="0.12" />
+            <polyline
+              points={points}
+              fill="none"
+              stroke={accent}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+            />
+          </svg>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -65,1772 +248,724 @@ export default function Home() {
   const [selectedPeriod, setSelectedPeriod] = useState("6M");
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
   const [showNotifications, setShowNotifications] = useState(false);
-  const [darkMode, setDarkMode] = useState<boolean>(true);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("theme") !== "light";
+  });
+  const [analytics, setAnalytics] = useState<AnalyticsPayload | null>(null);
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState("All");
   const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const notifications = [
-    {
-      title: "Revenue increased by 12%",
-      time: "2 min ago",
-    },
-    {
-      title: "New customer registered",
-      time: "10 min ago",
-    },
-    {
-      title: "Top product sales spiked",
-      time: "25 min ago",
-    },
-  ];
+
   useEffect(() => {
-  const savedTheme =
-    localStorage.getItem("theme");
-  if (savedTheme) {
-    setDarkMode(
-      savedTheme === "dark"
-    );
-  }
-}, []);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
   useEffect(() => {
-  localStorage.setItem(
-    "theme",
-    darkMode ? "dark" : "light"
-  );
-}, [darkMode]);
-useEffect(() => {
-  const fetchAnalytics = async () => {
-    const start = Date.now();
-    try {
-      const response = await fetch("/api/analytics");
-      if (!response.ok) {
-        throw new Error("Failed to fetch analytics");
+    const fetchAnalytics = async () => {
+      const start = Date.now();
+      try {
+        const response = await fetch("/api/analytics");
+        if (!response.ok) throw new Error("Failed to fetch analytics");
+        setAnalytics(await response.json());
+      } catch (error) {
+        console.error("Analytics Error:", error);
+      } finally {
+        const elapsed = Date.now() - start;
+        setTimeout(() => setLoading(false), Math.max(0, 400 - elapsed));
       }
-      const data = await response.json();
-      setAnalytics(data);
-    } catch (error) {
-      console.error("Analytics Error:", error);
-    } finally {
-      const elapsed = Date.now() - start;
-      const minimumLoader = 400;
-      setTimeout(() => {
-        setLoading(false);
-      }, Math.max(0, minimumLoader - elapsed));
+    };
+
+    fetchAnalytics();
+  }, []);
+
+  const rawData = useMemo(() => analytics?.rawData || [], [analytics?.rawData]);
+
+  const filteredData = useMemo(() => {
+    let data = [...rawData];
+    const query = searchQuery.toLowerCase();
+
+    data = data.filter((row) =>
+      row.Description?.toLowerCase().includes(query)
+    );
+
+    if (selectedCountry !== "All") {
+      data = data.filter((row) => row.Country === selectedCountry);
     }
-  };
-  fetchAnalytics();
-}, []);
 
-const recentOrders =
-(analytics?.recentOrders || []).filter(
-  (order: any) => {
-    const matchesSearch =
-      order.product
-        ?.toLowerCase()
-        .includes(
-          searchQuery.toLowerCase()
-        );
+    if (dateRange === "Recent") {
+      data = data.slice(-500);
+    }
+
+    return data;
+  }, [rawData, searchQuery, selectedCountry, dateRange]);
+
+  const recentOrders = (analytics?.recentOrders || []).filter((order) => {
+    const matchesSearch = order.product
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
     const matchesCountry =
-      selectedCountry === "All" ||
-      order.country === selectedCountry;
-    return (
-      matchesSearch &&
-      matchesCountry
-    );
-  }
-);
-const rawData = analytics?.rawData || [];
-const filteredData = useMemo(() => {
-  let data = [...rawData];
-  data = data.filter(
-    (row: any) =>
-      row.Description
-        ?.toLowerCase()
-        .includes(
-          searchQuery.toLowerCase()
-        )
-  );
-  if (selectedCountry !== "All") {
-    data = data.filter(
-      (row: any) =>
-        row.Country ===
-        selectedCountry
-    );
-  }
-  if (dateRange === "Recent") {
-    data = data.slice(-500);
-  }
-  return data;
-}, [
-  rawData,
-  searchQuery,
-  selectedCountry,
-  dateRange,
-]);
+      selectedCountry === "All" || order.country === selectedCountry;
+    return matchesSearch && matchesCountry;
+  });
 
-const openGitHub = () => {
-  window.open(
-    "https://github.com/garv999",
-    "_blank"
+  const topFilteredProducts = useMemo(() => {
+    return Object.entries(
+      filteredData.reduce<Record<string, number>>((acc, row) => {
+        const product = row.Description || "Unknown";
+        acc[product] = (acc[product] || 0) + Number(row.Revenue || 0);
+        return acc;
+      }, {})
+    )
+      .map(([product, revenue]) => ({
+        product: product.length > 38 ? `${product.slice(0, 38)}...` : product,
+        revenue,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  }, [filteredData]);
+
+  const topCustomers = useMemo(() => {
+    return Object.entries(
+      filteredData.reduce<Record<string, number>>((acc, row) => {
+        const customer = row["Customer ID"] || "Unknown";
+        acc[customer] = (acc[customer] || 0) + Number(row.Revenue || 0);
+        return acc;
+      }, {})
+    )
+      .map(([customer, revenue]) => ({ customer, revenue }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  }, [filteredData]);
+
+  const filteredRevenue = filteredData.reduce(
+    (sum, row) => sum + Number(row.Revenue || 0),
+    0
   );
-};
-const openLinkedIn = () => {
-  window.open(
-    "https://www.linkedin.com/in/garv-agarwal-0273161b9",
-    "_blank"
-  );
-};
-const exportCSV = () => {
-  const headers = [
-    "Invoice",
-    "Customer ID",
-    "Description",
-    "Country",
-    "Revenue",
-    "YearMonth",
-  ];
-  const rows = filteredData.map(
-    (row: any) => [
+  const filteredOrders = new Set(filteredData.map((row) => row.Invoice)).size;
+  const activeUsers = new Set(filteredData.map((row) => row["Customer ID"])).size;
+  const ordersPerCustomer =
+    activeUsers > 0 ? (filteredOrders / activeUsers).toFixed(1) : "0.0";
+
+  const filteredRevenueData = useMemo(() => {
+    const revenueMap: Record<string, number> = {};
+
+    filteredData.forEach((row) => {
+      const date = row.InvoiceDate?.split(" ")[0] || row.YearMonth;
+      if (!date) return;
+      revenueMap[date] = (revenueMap[date] || 0) + Number(row.Revenue || 0);
+    });
+
+    return Object.entries(revenueMap)
+      .map(([month, revenue]) => ({ month, revenue: Number(revenue) }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+  }, [filteredData]);
+
+  let chartData = filteredRevenueData;
+  if (selectedPeriod === "7D") chartData = chartData.slice(-7);
+  if (selectedPeriod === "30D") chartData = chartData.slice(-12);
+
+  const currentRevenue = chartData.at(-1)?.revenue || 0;
+  const previousRevenue = chartData.at(-2)?.revenue || 0;
+  const revenueGrowth =
+    previousRevenue > 0
+      ? (((currentRevenue - previousRevenue) / previousRevenue) * 100).toFixed(1)
+      : "0.0";
+
+  const growthPositive = Number(revenueGrowth) >= 0;
+  const countryData =
+    selectedCountry === "All"
+      ? analytics?.topCountries.slice(0, 10) || []
+      : (analytics?.topCountries || []).filter(
+          (country) => country.country === selectedCountry
+        );
+
+  const appTheme = darkMode
+    ? "bg-[#07090d] text-slate-50"
+    : "bg-[#f5f7fb] text-slate-950";
+  const shellSurface = darkMode
+    ? "border-slate-800/80 bg-[#0d1117]/90"
+    : "border-slate-200 bg-white/90";
+  const cardSurface = darkMode
+    ? "border-slate-800/90 bg-[#0d1117] text-slate-50"
+    : "border-slate-200 bg-white text-slate-950 shadow-sm";
+  const mutedText = darkMode ? "text-slate-400" : "text-slate-500";
+  const inputSurface = darkMode
+    ? "border-slate-800 bg-[#0d1117] text-slate-100"
+    : "border-slate-200 bg-white text-slate-950 shadow-sm";
+
+  const exportCSV = () => {
+    const headers = [
+      "Invoice",
+      "Customer ID",
+      "Description",
+      "Country",
+      "Revenue",
+      "YearMonth",
+    ];
+    const rows = filteredData.map((row) => [
       row.Invoice,
       row["Customer ID"],
       row.Description,
       row.Country,
       row.Revenue,
       row.YearMonth,
-    ]
-  );
-  const csvContent = [
-    headers.join(","),
-    ...rows.map(
-      (e: (string | number)[]) =>
-        e.join(",")
-    ),
-  ].join("\n");
-  const blob = new Blob(
-    [csvContent],
-    {
-      type: "text/csv;charset=utf-8;",
-    }
-  );
-  const url =
-    URL.createObjectURL(blob);
-  const link =
-    document.createElement("a");
-  link.href = url;
-  link.download =
-    "analytics_export.csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-const topFilteredProducts =
-  useMemo(() => {
-    return Object.entries(
-      filteredData.reduce(
-        (
-          acc: Record<
-            string,
-            number
-          >,
-          row: any
-        ) => {
-          const product =
-            row.Description ||
-            "Unknown";
+    ]);
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((entry) => entry.join(",")),
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "analytics_export.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
-          if (!acc[product]) {
-            acc[product] = 0;
-          }
-          acc[product] += Number(
-            row.Revenue || 0
-          );
+  const selectNavItem = (title: string) => {
+    setActiveSidebar(title);
+    setMobileMenuOpen(false);
+  };
 
-          return acc;
-        },
-        {}
-      )
-    )
-      .map(
-        ([product, revenue]) => ({
-          product:
-            product.length > 40
-              ? product.slice(
-                  0,
-                  40
-                ) + "..."
-              : product,
-          revenue,
-        })
-      )
-      .sort(
-        (
-          a: any,
-          b: any
-        ) =>
-          b.revenue -
-          a.revenue
-      )
-      .slice(0, 10);
-  }, [filteredData]);
-const topCustomers = useMemo(() => {
-  return Object.entries(
-    filteredData.reduce(
-      (
-        acc: Record<string, number>,
-        row: any
-      ) => {
-        const customer =
-          row["Customer ID"] || "Unknown";
-        if (!acc[customer]) {
-          acc[customer] = 0;
-        }
-        acc[customer] += Number(
-          row.Revenue || 0
-        );
-        return acc;
-      },
-      {}
-    )
-  )
-    .map(([customer, revenue]) => ({
-      customer,
-      revenue,
-    }))
-    .sort(
-      (a: any, b: any) =>
-        b.revenue - a.revenue
-    )
-    .slice(0, 10);
-}, [filteredData]);
-const filteredRevenue =
-  filteredData.reduce(
-    (sum: number, row: any) =>
-      sum + Number(row.Revenue || 0),
-    0
-  );
-
-const filteredOrders =
-  new Set(
-    filteredData.map(
-      (row: any) => row.Invoice
-    )
-  ).size;
-
-const activeUsers =
-  new Set(
-    filteredData.map(
-      (row: any) =>
-        row["Customer ID"]
-    )
-  ).size;
-
-const conversionRate =
-  activeUsers > 0
-    ? (
-        filteredOrders /
-        activeUsers
-      ).toFixed(1)
-    : "0.0";
-
-const filteredRevenueData =
-  useMemo(() => {
-    const revenueMap: Record<string, number> = {};
-
-    filteredData.forEach((row: any) => {
-      const date = row.InvoiceDate?.split(" ")[0];
-      if (!date) return;
-      if (!revenueMap[date]) {
-        revenueMap[date] = 0;
-      }
-      revenueMap[date] += Number(row.Revenue || 0);
-    });
-    return Object.entries(revenueMap)
-      .map(([month, revenue]) => ({
-        month,
-        revenue: Number(revenue),
-      }))
-      .sort((a: any, b: any) =>
-        a.month.localeCompare(b.month)
-      );
-  }, [filteredData]);
-let chartData =
-  filteredRevenueData;
-if (selectedPeriod === "7D") {
-  chartData =
-    chartData.slice(-7);
-}
-if (selectedPeriod === "30D") {
-  chartData =
-    chartData.slice(-12);
-}
-const currentRevenue =
-  chartData.length > 0
-    ? Number(
-        chartData[
-          chartData.length - 1
-        ].revenue
-      )
-    : 0;
-const previousRevenue =
-  chartData.length > 1
-    ? Number(
-        chartData[
-          chartData.length - 2
-        ].revenue
-      )
-    : 0;
-const revenueGrowth =
-  previousRevenue > 0
-    ? (
-        ((currentRevenue -
-          previousRevenue) /
-          previousRevenue) *
-        100
-      ).toFixed(1)
-    : "0.0";
-
-    if (loading) {
-      return (
-        <div
-        className="
-          min-h-screen
-          bg-black
-          flex
-          items-center
-          justify-center
-          text-white
-          text-2xl
-        "
-      >
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#07090d] text-slate-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="
-            w-12 h-12
-            border-4
-            border-white
-            border-t-transparent
-            rounded-full
-            animate-spin
-          " />
-          <p className="text-gray-300">
-            Loading Analytics...
-          </p>
+          <div className="size-11 rounded-full border-2 border-emerald-300 border-t-transparent animate-spin" />
+          <p className="text-sm text-slate-400">Loading analytics...</p>
         </div>
-      </div>
+      </main>
     );
   }
-  const cardStyles = darkMode
-    ? `
-        bg-white/[0.04]
-        border-white/5
-        text-white
-      `
-    : `
-        bg-white/90
-        border border-black/5
-        text-black
-        shadow-[0_4px_30px_rgba(0,0,0,0.06)]
-        backdrop-blur-xl
-      `;
 
-  const secondaryText = darkMode
-    ? "text-gray-400"
-    : "text-gray-500";
-
-  const inputStyles = darkMode
-    ? `
-      bg-white/[0.04]
-      border-white/5
-      text-white
-    `
-    : `
-      bg-white/80
-      border-black/5
-      text-black
-      backdrop-blur-xl
-    `;
   return (
-    <main
-      className={`
-        relative
-        min-h-screen
-        flex
-        overflow-hidden
-        transition-all
-        duration-500
-        ${
-          darkMode
-            ? "bg-black text-white"
-            : "bg-[#EEF2F7] text-black"
-        }
-      `}
-    >
-      {/* BACKGROUND ORBS */}
-
-      <div
-        className="
-          absolute
-          top-[-120px]
-          left-[-120px]
-          w-[350px]
-          h-[350px]
-          bg-emerald-500/20
-          rounded-full
-          blur-3xl
-          animate-pulse
-          pointer-events-none
-        "
-      />
-
-      <div
-        className="
-          absolute
-          bottom-[-120px]
-          right-[-120px]
-          w-[350px]
-          h-[350px]
-          bg-cyan-500/20
-          rounded-full
-          blur-3xl
-          animate-pulse
-          pointer-events-none
-        "
-      />
-
-      <div
-        className="
-          absolute
-          top-[35%]
-          left-[45%]
-          w-[250px]
-          h-[250px]
-          bg-purple-500/10
-          rounded-full
-          blur-3xl
-          pointer-events-none
-        "
-      />
-
-      {/* SIDEBAR */}
-      <aside className={`
-              ${
-                sidebarOpen ? "w-72" : "w-24"
-              }
-              transition-all duration-500
-              border-r
-              backdrop-blur-xl
-              p-6
-              hidden md:flex flex-col
-              ${
-                darkMode
-                  ? "bg-[#050505] border-white/5"
-                  : "bg-white border-black/5"
-              }
-            `}
-      >
-        <h1 className="text-2xl font-bold text-emerald-400 mb-10 transition-all duration-300">
-          {sidebarOpen ? "EcommerceAI" : "EA"}
-        </h1>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="
-            absolute top-7 right-5
-            text-gray-400 hover:text-white
-            transition
-          "
+    <main className={`min-h-screen transition-colors duration-300 ${appTheme}`}>
+      <div className="flex min-h-screen">
+        <aside
+          className={`hidden shrink-0 flex-col border-r p-4 transition-all duration-300 md:flex ${
+            sidebarOpen ? "w-64" : "w-20"
+          } ${shellSurface}`}
         >
-          {sidebarOpen ? (
-            <ChevronLeft size={18} />
-          ) : (
-            <ChevronRight size={18} />
-          )}
-        </button>
+          <SidebarPanel
+            sidebarOpen={sidebarOpen}
+            activeSidebar={activeSidebar}
+            inputSurface={inputSurface}
+            mutedText={mutedText}
+            filteredRows={filteredData.length}
+            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            onSelectItem={selectNavItem}
+          />
+        </aside>
 
-        <nav className="space-y-3">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              activeSidebar === item.title;
-            return (
-              <div
-                key={item.title}
-                onClick={() =>
-                  setActiveSidebar(item.title)
-                }
-                className={`
-                  flex items-center
-                  ${sidebarOpen
-                    ? "justify-start"
-                    : "justify-center"}
-                  gap-3
-                  px-4
-                  py-3
-                  rounded-2xl
-                  transition-all
-                  duration-300
-                  cursor-pointer
-                  group
-                  ${
-                    isActive
-                      ? `
-                        bg-emerald-500/10
-                        border border-emerald-500/20
-                        text-emerald-400
-                        shadow-[0_0_30px_rgba(16,185,129,0.18)]
-                      `
-                      : `
-                        text-gray-400
-                        hover:text-white
-                        ${
-                          darkMode
-                            ? "hover:bg-white/[0.04]"
-                            : "hover:bg-black/[0.03]"
-                        }
-                      `
-                  }
-                `}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <button
+              type="button"
+              aria-label="Close navigation"
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <aside className={`relative flex h-full w-72 flex-col border-r p-4 ${shellSurface}`}>
+              <div className="mb-6 flex items-center justify-between">
+                <p className="font-semibold text-emerald-300">EcommerceAI</p>
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`size-9 rounded-lg border ${inputSurface}`}
+                >
+                  <X className="mx-auto" size={18} />
+                </button>
+              </div>
+              <SidebarPanel
+                sidebarOpen
+                activeSidebar={activeSidebar}
+                inputSurface={inputSurface}
+                mutedText={mutedText}
+                filteredRows={filteredData.length}
+                onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                onSelectItem={selectNavItem}
+              />
+            </aside>
+          </div>
+        )}
+
+        <section className="min-w-0 flex-1">
+          <header
+            className={`sticky top-0 z-40 border-b px-4 py-3 backdrop-blur-xl lg:px-8 ${shellSurface}`}
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                aria-label="Open navigation"
+                onClick={() => setMobileMenuOpen(true)}
+                className={`size-10 rounded-lg border md:hidden ${inputSurface}`}
               >
-                <Icon
-                  size={20}
-                  className={`
-                    transition-all
-                    duration-300
-                    ${
-                      isActive
-                        ? "text-emerald-400"
-                        : "group-hover:scale-110"
-                    }
-                  `}
+                <Menu className="mx-auto" size={18} />
+              </button>
+
+              <div className={`flex min-w-[190px] flex-1 items-center gap-2 rounded-lg border px-3 py-2 ${inputSurface}`}>
+                <Search size={17} className={mutedText} />
+                <input
+                  type="search"
+                  placeholder="Search products, orders, countries..."
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500"
                 />
-                {sidebarOpen && (
-                  <span className="font-medium">
-                    {item.title}
-                  </span>
+              </div>
+
+              <select
+                aria-label="Country filter"
+                value={selectedCountry}
+                onChange={(event) => setSelectedCountry(event.target.value)}
+                className={`h-10 rounded-lg border px-3 text-sm outline-none ${inputSurface}`}
+              >
+                <option value="All">All countries</option>
+                {(analytics?.topCountries || []).map((country) => (
+                  <option key={country.country} value={country.country}>
+                    {country.country}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                aria-label="Date range"
+                value={dateRange}
+                onChange={(event) => setDateRange(event.target.value)}
+                className={`h-10 rounded-lg border px-3 text-sm outline-none ${inputSurface}`}
+              >
+                <option value="All">Full timeline</option>
+                <option value="Recent">Recent months</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={exportCSV}
+                disabled={!analytics}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-300 px-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Download size={16} />
+                Export
+              </button>
+
+              <button
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle theme"
+                onClick={() => setDarkMode(!darkMode)}
+                className={`size-10 rounded-lg border transition ${inputSurface}`}
+              >
+                {darkMode ? (
+                  <Sun className="mx-auto text-amber-300" size={17} />
+                ) : (
+                  <Moon className="mx-auto" size={17} />
+                )}
+              </button>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-label="Notifications"
+                  title="Notifications"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className={`relative size-10 rounded-lg border transition ${inputSurface}`}
+                >
+                  <Bell className="mx-auto" size={17} />
+                  <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-emerald-300" />
+                </button>
+
+                {showNotifications && (
+                  <div className={`absolute right-0 mt-3 w-80 overflow-hidden rounded-lg border shadow-xl ${shellSurface}`}>
+                    <div className="border-b border-slate-500/10 p-4">
+                      <p className="font-semibold">Notifications</p>
+                    </div>
+                    <div className="space-y-1 p-2">
+                      {notifications.map((notification) => (
+                        <button
+                          key={notification.title}
+                          type="button"
+                          className="w-full rounded-md p-3 text-left transition hover:bg-slate-500/10"
+                        >
+                          <p className="text-sm font-medium">{notification.title}</p>
+                          <p className={`mt-1 text-xs ${mutedText}`}>{notification.time}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
-            );
-          })}
-        </nav>
-      </aside>
 
-      {/* MAIN CONTENT */}
-      <section className="
-        flex-1
-        p-8
-        backdrop-blur-sm
-        relative
-        z-10
-        overflow-x-hidden
-      ">
-
-      {/* MOBILE MENU BUTTON */}
-      <div className="md:hidden mb-4">
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="
-            p-3 rounded-xl
-            bg-[#111111]
-            border border-white/10
-          "
-        >
-          {mobileMenuOpen ? (
-            <X size={20} />
-          ) : (
-            <Menu size={20} />
-          )}
-        </button>
-      </div>
-      {/* MOBILE SIDEBAR */}
-{mobileMenuOpen && (
-  <div
-    className="
-      fixed
-      inset-0
-      z-50
-      md:hidden
-    "
-  >
-    {/* BACKDROP */}
-    <div
-      className="
-        absolute
-        inset-0
-        bg-black/60
-        backdrop-blur-sm
-      "
-      onClick={() =>
-        setMobileMenuOpen(false)
-      }
-    />
-    {/* DRAWER */}
-    <div
-      className={`
-        absolute
-        left-0
-        top-0
-        h-full
-        w-72
-        p-6
-        transition-all
-        duration-300
-        ${
-          darkMode
-            ? "bg-[#050505]"
-            : "bg-white"
-        }
-      `}
-    >
-      <div className="
-        flex
-        items-center
-        justify-between
-        mb-10
-      ">
-        <h2 className="
-          text-xl
-          font-bold
-          text-emerald-400
-        ">
-          EcommerceAI
-        </h2>
-        <button
-          onClick={() =>
-            setMobileMenuOpen(false)
-          }
-        >
-          <X size={20} />
-        </button>
-      </div>
-      <nav className="space-y-3">
-        {sidebarItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={item.title}
-              onClick={() => {
-                setActiveSidebar(
-                  item.title
-                );
-                setMobileMenuOpen(
-                  false
-                );
-              }}
-              className={`
-                flex items-center
-                gap-3
-                px-4 py-3
-                rounded-2xl
-                cursor-pointer
-                transition-all
-                ${
-                  activeSidebar === item.title
-                    ? `
-                      bg-emerald-500/10
-                      text-emerald-400
-                    `
-                    : `
-                      text-gray-400
-                    `
-                }
-              `}
-            >
-              <Icon size={20} />
-              <span>
-                {item.title}
-              </span>
-            </div>
-          );
-        })}
-      </nav>
-    </div>
-  </div>
-)}
-        {/* TOP NAVBAR */}
-        <div className="
-        flex
-        items-center
-        justify-between
-        mb-10
-        gap-4
-        flex-wrap
-        ">
-
-          {/* SEARCH BAR */}
-          <div
-            className={`
-              flex items-center gap-3
-              rounded-2xl
-              px-4 py-3
-              w-full md:w-[400px]
-              border
-              ${inputStyles}
-            `}
-          >
-
-            <Search size={18} className={secondaryText} />
-
-            <input
-              type="text"
-              placeholder="Search analytics..."
-              value={searchQuery}
-              onChange={(e) =>
-                setSearchQuery(e.target.value)
-              }
-              className={`
-                bg-transparent
-                outline-none
-                text-sm
-                w-full
-                ${darkMode ? "text-white" : "text-black"}
-                ${darkMode
-                  ? "placeholder:text-gray-500"
-                  : "placeholder:text-gray-400"}
-              `}
-            />
-
-          </div>
-
-  {/* RIGHT SECTION */}
-  <div className="flex items-center gap-4">
-
-  {/* DARK MODE TOGGLE */}
-
-  <button
-    onClick={() => setDarkMode(!darkMode)}
-    className={`
-      w-12 h-12
-      rounded-2xl
-      border
-      flex items-center justify-center
-      transition-all duration-300
-      ${
-        darkMode
-          ? `
-            bg-white/[0.04]
-            border-white/5
-            hover:border-yellow-400/30
-            hover:shadow-[0_0_25px_rgba(250,204,21,0.15)]
-          `
-          : `
-            bg-white
-            border-black/10
-            hover:border-black/20
-          `
-      }
-    `}
-  >
-
-    {darkMode ? (
-      <Sun size={18} className="text-yellow-300" />
-    ) : (
-      <Moon size={18} className="text-black" />
-    )}
-
-  </button>
-
-    {/* NOTIFICATION */}
-    <div className="relative">
-
-      <div
-        onClick={() =>
-          setShowNotifications(
-            !showNotifications
-          )
-        }
-        className={`
-          w-12 h-12
-          rounded-2xl
-          border
-          flex items-center justify-center
-          transition-all duration-300
-          cursor-pointer
-          relative
-          ${inputStyles}
-        `}
-      >
-
-        <Bell size={18} />
-
-        {/* DOT */}
-        <div className="
-          absolute
-          top-3 right-3
-          w-2 h-2
-          rounded-full
-          bg-emerald-400
-          animate-pulse
-        " />
-
-      </div>
-
-      {/* DROPDOWN */}
-      {showNotifications && (
-        <div
-          className={`
-            absolute
-            right-0
-            mt-4
-            w-[320px]
-            rounded-3xl
-            border
-            backdrop-blur-2xl
-            shadow-[0_0_40px_rgba(0,0,0,0.4)]
-            overflow-hidden
-            z-50
-            animate-in
-            fade-in
-            slide-in-from-top-2
-            duration-300
-            ${
-              darkMode
-                ? "bg-black/80 border-white/10"
-                : "bg-white/90 border-black/5"
-            }
-          `}
-        >
-          <div className="
-            p-5 border-b border-white/5
-          ">
-            <h3 className="font-semibold text-lg">
-              Notifications
-            </h3>
-          </div>
-          <div className="p-3 space-y-2">
-            {notifications.map(
-              (notification, index) => (
-                <div
-                  key={index}
-                  className={`
-                    p-4 rounded-2xl
-                    transition-all duration-300
-                    cursor-pointer
-                    ${
-                      darkMode
-                        ? "bg-white/[0.04] hover:bg-white/[0.06]"
-                        : "bg-black/[0.04] hover:bg-black/[0.06]"
-                    }
-                  `}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className={`flex h-10 items-center gap-2 rounded-lg border px-2 ${inputSurface}`}
                 >
-                  <p
-                    className={`
-                      text-sm
-                      ${darkMode ? "text-white" : "text-black"}
-                    `}
-                  >
-                    {notification.title}
-                  </p>
-                  <p className="
-                    text-xs text-gray-400 mt-1
-                  ">
-                    {notification.time}
-                  </p>
+                  <span className="flex size-7 items-center justify-center rounded-md bg-emerald-300 text-sm font-bold text-slate-950">
+                    G
+                  </span>
+                  <span className="hidden text-left leading-tight 2xl:block">
+                    <span className="block text-sm font-semibold">Garv Agarwal</span>
+                    <span className={`block text-xs ${mutedText}`}>AI & Data Engineer</span>
+                  </span>
+                  <ChevronDown size={14} />
+                </button>
+
+                {showProfileMenu && (
+                  <div className={`absolute right-0 mt-3 w-56 overflow-hidden rounded-lg border shadow-xl ${shellSurface}`}>
+                    <a
+                      href="https://github.com/garv999"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block px-4 py-3 text-sm hover:bg-slate-500/10"
+                    >
+                      GitHub
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/garv-agarwal-0273161b9"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block px-4 py-3 text-sm hover:bg-slate-500/10"
+                    >
+                      LinkedIn
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setDarkMode(!darkMode)}
+                      className="block w-full px-4 py-3 text-left text-sm hover:bg-slate-500/10"
+                    >
+                      Toggle theme
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          <div className="space-y-6 p-4 lg:p-8">
+            {activeSidebar === "Dashboard" && (
+              <>
+                <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+                  <div>
+                    <div className="mb-4 flex flex-wrap items-center gap-2">
+                      <span className="rounded-md bg-emerald-400/12 px-2.5 py-1 text-xs font-semibold text-emerald-300">
+                        AI commerce cockpit
+                      </span>
+                      <span className={`text-xs ${mutedText}`}>
+                        Updated from {filteredData.length.toLocaleString()} transactions
+                      </span>
+                    </div>
+                    <h1 className="max-w-4xl text-3xl font-semibold tracking-tight md:text-4xl">
+                      Revenue, product, and customer intelligence in one
+                      operator-grade view.
+                    </h1>
+                    <p className={`mt-3 max-w-2xl text-sm leading-6 ${mutedText}`}>
+                      Track growth drivers, monitor top markets, and export
+                      filtered retail data without leaving the dashboard.
+                    </p>
+                  </div>
+
+                  <Card className={`${cardSurface} rounded-lg`}>
+                    <CardContent className="p-5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={18} className="text-amber-300" />
+                        <p className="font-semibold">AI summary</p>
+                      </div>
+                      <p className={`mt-3 text-sm leading-6 ${mutedText}`}>
+                        {analytics?.aiInsights?.[0] ||
+                          "Revenue and customer behavior insights will appear here."}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <span className="rounded-md bg-cyan-400/10 px-2 py-1 text-xs font-medium text-cyan-300">
+                          {ordersPerCustomer} orders/customer
+                        </span>
+                        <span className="rounded-md bg-violet-400/10 px-2 py-1 text-xs font-medium text-violet-300">
+                          {activeUsers.toLocaleString()} customers
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              )
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <MetricCard
+                    label="Total revenue"
+                    value={compactCurrency(filteredRevenue)}
+                    delta={`${growthPositive ? "+" : ""}${revenueGrowth}%`}
+                    accent="#36d399"
+                    data={chartData}
+                    cardSurface={cardSurface}
+                    mutedText={mutedText}
+                    growthPositive={growthPositive}
+                  />
+                  <MetricCard
+                    label="Total orders"
+                    value={filteredOrders.toLocaleString()}
+                    delta="Live"
+                    accent="#38bdf8"
+                    data={chartData}
+                    cardSurface={cardSurface}
+                    mutedText={mutedText}
+                    growthPositive={growthPositive}
+                  />
+                  <MetricCard
+                    label="Customers"
+                    value={activeUsers.toLocaleString()}
+                    delta={`${ordersPerCustomer} avg`}
+                    accent="#a78bfa"
+                    data={chartData}
+                    cardSurface={cardSurface}
+                    mutedText={mutedText}
+                    growthPositive={growthPositive}
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[1.45fr_0.75fr]">
+                  <Card className={`${cardSurface} rounded-lg`}>
+                    <CardContent className="p-5">
+                      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h2 className="text-lg font-semibold">Revenue overview</h2>
+                          <p className={`mt-1 text-sm ${mutedText}`}>
+                            {selectedPeriod === "7D"
+                              ? "Last 7 records revenue trend"
+                              : selectedPeriod === "30D"
+                              ? "Last 12 records revenue trend"
+                              : "Full filtered revenue performance"}
+                          </p>
+                        </div>
+                        <div className="flex rounded-lg border border-slate-500/15 p-1">
+                          {["7D", "30D", "6M"].map((period) => (
+                            <button
+                              key={period}
+                              type="button"
+                              onClick={() => setSelectedPeriod(period)}
+                              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                                selectedPeriod === period
+                                  ? "bg-emerald-300 text-slate-950"
+                                  : `${mutedText} hover:bg-slate-500/10 hover:text-current`
+                              }`}
+                            >
+                              {period}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="h-[360px]">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                          <LineChart data={chartData} margin={{ top: 10, right: 18, left: 0, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                            <XAxis dataKey="month" stroke={darkMode ? "#94a3b8" : "#64748b"} tick={{ fontSize: 12 }} />
+                            <YAxis stroke={darkMode ? "#94a3b8" : "#64748b"} tick={{ fontSize: 12 }} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Line
+                              type="monotone"
+                              dataKey="revenue"
+                              stroke="#38bdf8"
+                              strokeWidth={3}
+                              dot={false}
+                              activeDot={{ r: 6, fill: "#36d399" }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className={`${cardSurface} rounded-lg`}>
+                    <CardContent className="p-5">
+                      <h2 className="text-lg font-semibold">Growth drivers</h2>
+                      <div className="mt-5 space-y-4">
+                        {(analytics?.aiInsights || []).slice(0, 4).map((insight, index) => (
+                          <div key={insight} className="rounded-lg border border-slate-500/15 p-4">
+                            <p className="text-xs font-semibold text-emerald-300">
+                              Insight {index + 1}
+                            </p>
+                            <p className={`mt-2 text-sm leading-6 ${mutedText}`}>{insight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <Card className={`${cardSurface} rounded-lg`}>
+                    <CardContent className="p-5">
+                      <h2 className="text-lg font-semibold">Top countries</h2>
+                      <p className={`mt-1 text-sm ${mutedText}`}>Revenue contribution by market</p>
+                      <div className="mt-5 h-[330px]">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                          <BarChart data={countryData} layout="vertical" margin={{ top: 5, right: 18, left: 18, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                            <XAxis type="number" stroke={darkMode ? "#94a3b8" : "#64748b"} tick={{ fontSize: 12 }} />
+                            <YAxis type="category" dataKey="country" stroke={darkMode ? "#94a3b8" : "#64748b"} width={110} tick={{ fontSize: 12 }} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Bar dataKey="revenue" fill="#36d399" radius={[0, 6, 6, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className={`${cardSurface} rounded-lg`}>
+                    <CardContent className="p-5">
+                      <h2 className="text-lg font-semibold">Top products</h2>
+                      <p className={`mt-1 text-sm ${mutedText}`}>Highest revenue generating products</p>
+                      <div className="mt-5 h-[330px]">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                          <BarChart data={topFilteredProducts} layout="vertical" margin={{ top: 5, right: 18, left: 18, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                            <XAxis type="number" stroke={darkMode ? "#94a3b8" : "#64748b"} tick={{ fontSize: 12 }} />
+                            <YAxis type="category" dataKey="product" stroke={darkMode ? "#94a3b8" : "#64748b"} width={150} tick={{ fontSize: 12 }} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Bar dataKey="revenue" fill="#38bdf8" radius={[0, 6, 6, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className={`${cardSurface} rounded-lg`}>
+                  <CardContent className="p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-lg font-semibold">Recent orders</h2>
+                        <p className={`mt-1 text-sm ${mutedText}`}>Latest matching ecommerce transactions</p>
+                      </div>
+                      <span className="rounded-md bg-slate-500/10 px-2 py-1 text-xs font-medium">
+                        {recentOrders.length} rows
+                      </span>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-slate-500/15">
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Product</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Country</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {recentOrders.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={4} className={`py-10 text-center ${mutedText}`}>
+                                No orders found.
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            recentOrders.map((order, index) => (
+                              <TableRow key={`${order.customer}-${index}`} className="border-slate-500/10">
+                                <TableCell>{order.customer}</TableCell>
+                                <TableCell className="min-w-[260px]">{order.product}</TableCell>
+                                <TableCell className="font-semibold text-emerald-300">{order.amount}</TableCell>
+                                <TableCell>{order.country}</TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {activeSidebar === "Products" && (
+              <AnalyticsView
+                title="Product analytics"
+                description="Revenue concentration and merchandising performance by product."
+                cardSurface={cardSurface}
+                mutedText={mutedText}
+              >
+                <ResponsiveContainer width="100%" height={500} minWidth={1} minHeight={1}>
+                  <BarChart data={topFilteredProducts} layout="vertical" margin={{ top: 10, right: 20, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                    <XAxis type="number" stroke={darkMode ? "#94a3b8" : "#64748b"} />
+                    <YAxis type="category" dataKey="product" stroke={darkMode ? "#94a3b8" : "#64748b"} width={220} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="revenue" fill="#38bdf8" radius={[0, 6, 6, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </AnalyticsView>
+            )}
+
+            {activeSidebar === "Customers" && (
+              <AnalyticsView
+                title="Customer analytics"
+                description="Top customers ranked by filtered revenue contribution."
+                cardSurface={cardSurface}
+                mutedText={mutedText}
+              >
+                <ResponsiveContainer width="100%" height={500} minWidth={1} minHeight={1}>
+                  <BarChart data={topCustomers} layout="vertical" margin={{ top: 10, right: 20, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                    <XAxis type="number" stroke={darkMode ? "#94a3b8" : "#64748b"} />
+                    <YAxis type="category" dataKey="customer" stroke={darkMode ? "#94a3b8" : "#64748b"} width={120} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="revenue" fill="#a78bfa" radius={[0, 6, 6, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </AnalyticsView>
+            )}
+
+            {activeSidebar === "Revenue" && (
+              <AnalyticsView
+                title="Revenue analytics"
+                description="Monthly revenue trend for the active filter set."
+                cardSurface={cardSurface}
+                mutedText={mutedText}
+              >
+                <ResponsiveContainer width="100%" height={500} minWidth={1} minHeight={1}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#202938" : "#dbe3ef"} />
+                    <XAxis dataKey="month" stroke={darkMode ? "#94a3b8" : "#64748b"} />
+                    <YAxis stroke={darkMode ? "#94a3b8" : "#64748b"} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Line type="monotone" dataKey="revenue" stroke="#36d399" strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </AnalyticsView>
             )}
           </div>
-        </div>
-      )}
-    </div>
-    </div>
-
-    {/* PROFILE */}
-<div className="relative">
-  <div
-    onClick={() =>
-      setShowProfileMenu(
-        !showProfileMenu
-      )
-    }
-    className={`
-      flex items-center gap-3
-      rounded-2xl
-      px-3 py-2
-      border
-      cursor-pointer
-      ${inputStyles}
-    `}
-  >
-    <div className="
-      w-10 h-10
-      rounded-full
-      bg-emerald-500
-      flex items-center justify-center
-      text-black
-      font-bold
-    ">
-      G
-    </div>
-    <div className="hidden md:block">
-      <div className="flex items-center gap-1">
-        <p className="text-sm font-medium">
-          Garv Agarwal
-        </p>
-        <ChevronDown size={14} />
+        </section>
       </div>
-      <p className="text-xs text-gray-400">
-        AI & Data Engineer
-      </p>
-    </div>
-  </div>
-  {showProfileMenu && (
-    <div
-      className={`
-        absolute
-        right-0
-        mt-3
-        w-60
-        rounded-3xl
-        border
-        overflow-hidden
-        z-50
-        backdrop-blur-2xl
-        shadow-[0_0_40px_rgba(0,0,0,0.3)]
-        ${
-          darkMode
-            ? "bg-black/90 border-white/10"
-            : "bg-white border-black/5"
-        }
-      `}
-    >
-      <button
-  onClick={openGitHub}
-  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
->
-  GitHub
-</button>
-<button
-  onClick={openLinkedIn}
-  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
->
-  LinkedIn
-</button>
-<button
-  onClick={() => setDarkMode(!darkMode)}
-  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
->
-  Toggle Theme
-</button>
-<button
-  onClick={() => setShowProfileMenu(false)}
-  className="w-full text-left px-5 py-4 hover:bg-emerald-500/10 transition"
->
-  Close Menu
-</button>
-    </div>
-  )}
-</div>
-</div>
-{/* FILTER BAR */}
-<div className="flex flex-wrap gap-4 mb-8">
-
-  {/* COUNTRY FILTER */}
-  <select
-    value={selectedCountry}
-    onChange={(e) =>
-      setSelectedCountry(e.target.value)
-    }
-    className={`
-      px-4 py-3 rounded-2xl
-      border outline-none
-      text-sm
-      ${inputStyles}
-    `}
-  >
-    <option value="All">
-      All Countries
-    </option>
-    {(analytics?.topCountries || []).map(
-      (country: any, index: number) => (
-        <option
-          key={index}
-          value={country.country}
-        >
-          {country.country}
-        </option>
-      )
-    )}
-  </select>
-
-  {/* DATE FILTER */}
-  <select
-    value={dateRange}
-    onChange={(e) =>
-      setDateRange(e.target.value)
-    }
-    className={`
-      px-4 py-3 rounded-2xl
-      border outline-none
-      text-sm
-      ${inputStyles}
-    `}
-  >
-    <option value="All">
-      Full Timeline
-    </option>
-    <option value="Recent">
-      Recent Months
-    </option>
-  </select>
-
-  {/* EXPORT CSV BUTTON */}
-  <button
-    onClick={exportCSV}
-    disabled={!analytics}
-    className="
-      flex items-center gap-2
-      px-5 py-3
-      rounded-2xl
-      bg-emerald-500
-      text-black
-      font-medium
-      hover:scale-105
-      transition-all
-      disabled:opacity-50
-      disabled:cursor-not-allowed
-    "
-  >
-    <Download size={18} />
-    Export CSV
-  </button>
-</div>
-{activeSidebar === "Dashboard" && (
-  <>
-        {/* HEADER */}
-        <div className="mb-8">
-          <h2 className="text-5xl font-bold tracking-tight">
-            Ecommerce Analytics Dashboard
-          </h2>
-
-          <p className="text-gray-400 mt-2">
-            Customer behavior • Revenue trends • Product insights
-          </p>
-        </div>
-
-        {/* KPI CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <Card
-            className={`
-              ${cardStyles}
-              backdrop-blur-2xl
-              transition-all
-              duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-              hover:border-emerald-400/20
-            `}
-          >
-            <CardContent className="p-6">
-              <p className={secondaryText}>Total Revenue</p>
-              <h3 className="text-3xl font-bold mt-2">
-                ₹{(
-                  filteredRevenue /
-                  10000000
-                ).toFixed(2)} Cr
-              </h3>
-            </CardContent>
-          </Card>
-
-          <Card
-            className={`
-              ${cardStyles}
-              backdrop-blur-2xl
-              transition-all
-              duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-              hover:border-emerald-400/20
-            `}
-          >
-            <CardContent className="p-6">
-              <p className={secondaryText}>Total Orders</p>
-              <h3 className="text-3xl font-bold mt-2">{filteredOrders.toLocaleString()}</h3>
-            </CardContent>
-          </Card>
-
-          <Card
-            className={`
-              ${cardStyles}
-              backdrop-blur-2xl
-              transition-all
-              duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-              hover:border-emerald-400/20
-            `}
-          >
-            <CardContent className="p-6">
-              <p className={secondaryText}>Customers</p>
-              <h3 className="text-3xl font-bold mt-2">{activeUsers.toLocaleString()}</h3>
-            </CardContent>
-          </Card>
-
-        </div>
-
-        {/* ANALYTICS WIDGETS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-
-  {/* GROWTH */}
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-
-      <div className="flex items-center justify-between">
-
-        <div>
-          <p className="text-gray-400 text-sm">
-            Revenue Growth
-          </p>
-
-          <h3 className="text-3xl font-bold mt-2">
-            {revenueGrowth}%
-          </h3>
-        </div>
-
-        <div className="
-          w-12 h-12 rounded-2xl
-          bg-emerald-500/10
-          flex items-center justify-center
-        ">
-          <ArrowUpRight className="text-emerald-400" />
-        </div>
-
-      </div>
-
-      <p className="text-emerald-400 text-sm mt-4">
-        Compared to previous month
-      </p>
-
-    </CardContent>
-  </Card>
-
-  {/* ACTIVE USERS */}
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-
-      <div className="flex items-center justify-between">
-
-        <div>
-          <p className="text-gray-400 text-sm">
-            Active Users
-          </p>
-
-          <h3 className="text-3xl font-bold mt-2">
-            {activeUsers.toLocaleString()}
-          </h3>
-        </div>
-
-        <div className="
-          w-12 h-12 rounded-2xl
-          bg-blue-500/10
-          flex items-center justify-center
-        ">
-          <Activity className="text-blue-400" />
-        </div>
-
-      </div>
-
-      <p className="text-blue-400 text-sm mt-4">
-        Unique active customers
-      </p>
-
-    </CardContent>
-  </Card>
-
-  {/* CONVERSION */}
-<Card
-  className={`
-    ${cardStyles}
-    backdrop-blur-2xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-    hover:border-emerald-400/20
-  `}
->
-    <CardContent className="p-6">
-
-      <div className="flex items-center justify-between">
-
-        <div>
-          <p className="text-gray-400 text-sm">
-             Avg Orders / Customer
-          </p>
-
-          <h3 className="text-3xl font-bold mt-2">
-            {conversionRate}
-          </h3>
-        </div>
-
-        <div className="
-          w-12 h-12 rounded-2xl
-          bg-purple-500/10
-          flex items-center justify-center
-        ">
-          <DollarSign className="text-purple-400" />
-        </div>
-
-      </div>
-
-      <p className="text-purple-400 text-sm mt-4">
-         Average orders placed by each customer
-      </p>
-
-    </CardContent>
-  </Card>
-
-</div>
-        {/* CHART SECTION */}
-        <div className="mt-8">
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold">
-          Revenue Overview
-        </h3>
-
-        <p className="text-gray-400 mt-1">
-          {selectedPeriod === "7D"
-            ? "Last 7 records revenue trend"
-            : selectedPeriod === "30D"
-            ? "Last 12 records revenue trend"
-            : "Full revenue performance"}
-        </p>
-      </div>
-      <div className="flex gap-3 mt-6 mb-8 flex-wrap">
-
-          {["7D", "30D", "6M"].map((period) => (
-
-            <button
-              key={period}
-              onClick={() => setSelectedPeriod(period)}
-              className={`
-                px-4 py-2 rounded-xl text-sm font-medium
-                transition-all duration-300
-                ${
-                  selectedPeriod === period
-                    ? "bg-emerald-500 text-black"
-                    : darkMode
-                      ? "bg-[#111111] text-gray-400 hover:text-white"
-                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
-                }
-              `}
-            >
-              {period}
-            </button>
-
-          ))}
-
-        </div>
-
-      <div className="h-[350px]">
-        <ResponsiveContainer
-          width="100%"
-          height={350}
-        >
-          <LineChart
-            data={chartData}
-            margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={darkMode ? "#1f2937" : "#d1d5db"}
-            />
-            <XAxis
-              dataKey="month"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <YAxis
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#06b6d4"
-              connectNulls={true}
-              strokeWidth={3}
-              dot={{
-                r: 5,
-                fill: "#06b6d4",
-                strokeWidth: 2,
-              }}
-              activeDot={{
-                r: 8,
-                fill: "#10b981",
-              }}
-              animationDuration={800}
-              animationEasing="ease-in-out"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </CardContent>
-  </Card>
-</div>
-
-{/* TOP COUNTRIES */}
-<div className="mt-8">
-
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold">
-          Top Countries
-        </h3>
-        <p className="text-gray-400 mt-1">
-          Revenue contribution by country
-        </p>
-      </div>
-      <div className="h-[350px]">
-        <ResponsiveContainer
-          width="100%"
-          height={350}
-        >
-          <BarChart
-            data={selectedCountry === "All"? analytics?.topCountries || []: (analytics?.topCountries || []).filter((country: any) =>country.country === selectedCountry)}
-            layout="vertical"
-            margin={{ top: 10, right: 20, left: 20, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={darkMode ? "#1f2937" : "#d1d5db"}
-            />
-            <XAxis
-              type="number"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <YAxis
-              type="category"
-              dataKey="country"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-              width={120}
-            />
-            <Tooltip />
-            <Bar
-              dataKey="revenue"
-              fill="#10b981"
-              radius={[0, 10, 10, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </CardContent>
-  </Card>
-</div>
-
-{/* TOP PRODUCTS */}
-<div className="mt-8">
-
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold">
-          Top Products
-        </h3>
-        <p className="text-gray-400 mt-1">
-          Highest revenue generating products
-        </p>
-      </div>
-      <div className="h-[420px]">
-        <ResponsiveContainer
-          width="100%"
-          height={350}
-        >
-          <BarChart
-            data={topFilteredProducts.filter((product:any)=>product.product.toLowerCase().includes(searchQuery.toLowerCase()))}
-            layout="vertical"
-            margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={darkMode ? "#1f2937" : "#d1d5db"}
-            />
-            <XAxis
-              type="number"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <YAxis
-              type="category"
-              dataKey="product"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-              width={120}
-            />
-            <Tooltip />
-            <Bar
-              dataKey="revenue"
-              fill="#3b82f6"
-              radius={[0, 10, 10, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </CardContent>
-  </Card>
-</div>
-
-{/* AI INSIGHTS */}
-<div className="mt-8">
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold">
-          AI Business Insights
-        </h3>
-        <p
-          className={`mt-1 ${
-            darkMode
-              ? "text-gray-400"
-              : "text-gray-600"
-          }`}
-        >
-          Automated ecommerce recommendations
-        </p>
-      </div>
-      <div className="grid gap-4">
-        {(analytics?.aiInsights || []).length === 0 ? (
-          <div className="
-            text-center
-            py-8
-            text-gray-400
-          ">
-            No AI insights available.
-          </div>
-        ) : (
-          (analytics?.aiInsights || []).map(
-            (insight: string, index: number) => (
-              <div
-                key={index}
-                className={`
-                  rounded-2xl
-                  p-4
-                  transition-all
-                  duration-300
-                  ${
-                    darkMode
-                      ? `
-                        bg-white/[0.04]
-                        border border-white/5
-                        hover:border-purple-400/20
-                      `
-                      : `
-                        bg-gray-50
-                        border border-gray-200
-                        hover:border-purple-300
-                      `
-                  }
-                `}
-              >
-                <p
-                  className={
-                    darkMode
-                      ? "text-gray-200"
-                      : "text-gray-700"
-                  }
-                >
-                  ✨ {insight}
-                </p>
-              </div>
-          )))}
-      </div>
-    </CardContent>
-  </Card>
-</div>
-
-{/* RECENT ORDERS TABLE */}
-<div className="mt-8">
-  <Card
-    className={`
-      ${cardStyles}
-      backdrop-blur-2xl
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-[0_0_30px_rgba(16,185,129,0.25)]
-      hover:border-emerald-400/20
-    `}
-  >
-    <CardContent className="p-6">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold">
-          Recent Orders
-        </h3>
-        <p className="text-gray-400 mt-1">
-          Latest ecommerce transactions
-        </p>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow className="border-white/10">
-            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Customer</TableHead>
-            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Product</TableHead>
-            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Amount</TableHead>
-            <TableHead className={darkMode ? "text-gray-200" : "text-gray-700"}>Country</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {recentOrders.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={4}
-                className="text-center py-10 text-gray-400"
-              >
-                No orders found.
-              </TableCell>
-            </TableRow>
-          ) : (
-            recentOrders.map((order: any, index: number) => (
-            <TableRow
-              key={index}
-              className="border-white/5"
-            >
-              <TableCell>{order.customer}</TableCell>
-              <TableCell>{order.product}</TableCell>
-              <TableCell>{order.amount}</TableCell>
-              <TableCell>{order.country}</TableCell>
-            </TableRow>
-          )))}
-        </TableBody>
-      </Table>
-    </CardContent>
-  </Card>
-</div>
-  </>
-)}
-
-{/* PRODUCTS PAGE */}
-{activeSidebar === "Products" && (
-  <div className="space-y-8">
-    <div>
-      <h2 className="text-4xl font-bold">
-        Product Analytics
-      </h2>
-      <p className={`${secondaryText} mt-2`}>
-        Revenue insights by products
-      </p>
-    </div>
-    <Card
-      className={`
-        ${cardStyles}
-        backdrop-blur-2xl
-        p-6
-      `}
-    >
-      <div className="h-[500px]">
-        <ResponsiveContainer
-          width="100%"
-          height={500}
-        >
-          <BarChart
-            data={topFilteredProducts}
-            layout="vertical"
-            margin={{
-              top: 10,
-              right: 20,
-              left: 40,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#1f2937"
-            />
-            <XAxis
-              type="number"
-              stroke="#9ca3af"
-            />
-            <YAxis
-              type="category"
-              dataKey="product"
-              stroke="#9ca3af"
-              width={220}
-            />
-            <Tooltip />
-            <Bar
-              dataKey="revenue"
-              fill="#3b82f6"
-              radius={[0, 10, 10, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-  </div>
-)}
-
-{/* CUSTOMERS PAGE */}
-{activeSidebar === "Customers" && (
-  <div className="space-y-8">
-    <div>
-      <h2 className="text-4xl font-bold">
-        Customer Analytics
-      </h2>
-      <p className={`${secondaryText} mt-2`}>
-        Top customer revenue insights
-      </p>
-    </div>
-    <Card
-      className={`
-        ${cardStyles}
-        backdrop-blur-2xl
-        p-6
-      `}
-    >
-      <div className="h-[500px]">
-        <ResponsiveContainer
-          width="100%"
-          height={500}
-        >
-          <BarChart
-            data={topCustomers}
-            layout="vertical"
-            margin={{
-              top: 10,
-              right: 20,
-              left: 40,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#1f2937"
-            />
-            <XAxis
-              type="number"
-              stroke="#9ca3af"
-            />
-            <YAxis
-              type="category"
-              dataKey="customer"
-              stroke="#9ca3af"
-              width={120}
-            />
-            <Tooltip />
-            <Bar
-              dataKey="revenue"
-              fill="#10b981"
-              radius={[0, 10, 10, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-  </div>
-)}
-
-{/* REVENUE PAGE */}
-{activeSidebar === "Revenue" && (
-  <div className="space-y-8">
-    <div>
-      <h2 className="text-4xl font-bold">
-        Revenue Analytics
-      </h2>
-      <p className={`${secondaryText} mt-2`}>
-        Monthly revenue trends
-      </p>
-    </div>
-    <Card
-      className={`
-        ${cardStyles}
-        backdrop-blur-2xl
-        p-6
-      `}
-    >
-      <div className="h-[500px]">
-        <ResponsiveContainer
-          width="100%"
-          height={500}
-        >
-          <LineChart data={chartData}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={darkMode ? "#1f2937" : "#d1d5db"}
-            />
-            <XAxis
-              dataKey="month"
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <YAxis
-              stroke={darkMode ? "#9ca3af" : "#4b5563"}
-            />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#06b6d4"
-              connectNulls={true}
-              strokeWidth={4}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-  </div>
-)}
-      </section>
     </main>
+  );
+}
+
+function AnalyticsView({
+  title,
+  description,
+  cardSurface,
+  mutedText,
+  children,
+}: {
+  title: string;
+  description: string;
+  cardSurface: string;
+  mutedText: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <p className={`mt-2 text-sm ${mutedText}`}>{description}</p>
+      </div>
+      <Card className={`${cardSurface} rounded-lg`}>
+        <CardContent className="h-[560px] p-5">{children}</CardContent>
+      </Card>
+    </div>
   );
 }
