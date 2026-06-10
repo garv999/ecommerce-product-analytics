@@ -38,33 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type RetailRow = {
-  Invoice?: string;
-  InvoiceDate?: string;
-  YearMonth?: string;
-  Description?: string;
-  Country?: string;
-  Revenue?: number | string;
-  "Customer ID"?: string;
-};
-
-type AnalyticsPayload = {
-  rawData: RetailRow[];
-  totalRevenue: number;
-  totalOrders: number;
-  totalCustomers: number;
-  revenueChartData: { month: string; revenue: number }[];
-  topCountries: { country: string; revenue: number }[];
-  topProducts: { product: string; revenue: number }[];
-  aiInsights: string[];
-  recentOrders: {
-    customer: string;
-    product: string;
-    amount: string;
-    country: string;
-  }[];
-};
+import { AnalyticsPayload } from "@/lib/types";
 
 const sidebarItems = [
   { title: "Dashboard", icon: LayoutDashboard },

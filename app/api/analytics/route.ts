@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import Papa from "papaparse";
+import { RetailTransaction } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -19,12 +20,12 @@ export async function GET() {
     const csvFile = fs.readFileSync(filePath, "utf8");
 
     // PARSE CSV
-    const parsedData = Papa.parse(csvFile, {
+    const parsedData = Papa.parse<RetailTransaction>(csvFile, {
       header: true,
       skipEmptyLines: true,
     });
 
-    const allData = parsedData.data as any[];
+    const allData = parsedData.data;
     const chartDataSource = allData;           // full dataset
     const data = allData.slice(-150000);       // table + filters
 
